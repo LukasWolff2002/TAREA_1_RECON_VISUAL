@@ -1,0 +1,187 @@
+\documentclass[12pt]{article} % Define la clase del documento, en este caso, un artículo
+
+% Paquetes de idioma y codificación
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}  % Ajusta el idioma del documento a español.
+
+% Paquete de geometría para configurar márgenes y tamaño de papel
+\usepackage[letterpaper, margin=3cm]{geometry}
+
+% Paquetes de tipografía
+\usepackage{mathptmx}    % Usa Times New Roman como fuente.
+\usepackage{microtype}   % Mejora la justificación del texto.
+
+% Paquetes para manejo de colores y gráficos
+\usepackage{xcolor}      % Define y utiliza colores.
+\usepackage{graphicx}    % Permite la inserción de imágenes.
+\usepackage{tikz}        % Creación de gráficos vectoriales.
+
+% Configuración de enlaces y referencias cruzadas
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks   = true,
+    linkcolor    = darkblue,
+    citecolor    = black,
+    filecolor    = blue,
+    urlcolor     = blue
+}
+
+% Paquetes para la mejora visual de tablas y figuras
+\usepackage{booktabs}    % Para tablas de alta calidad.
+\usepackage{float}       % Controla la posición de figuras y tablas.
+
+% Paquete para la personalización de códigos fuente
+\usepackage{listings}
+\lstset{
+    literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {ü}{{\"u}}1 {Ü}{{\"U}}1,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{codepurple},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{red},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    language=TeX,
+    morecomment=[l]\#,
+    frame=single,
+    rulecolor=\color{black}
+}
+
+% Definición de colores al estilo Visual Studio Code
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}  % Enlaces
+\definecolor{codegreen}{rgb}{0.25, 0.49, 0.48}  % Comentarios
+\definecolor{codegray}{rgb}{0.5, 0.5, 0.5}  % Números y anotaciones
+\definecolor{codepurple}{rgb}{0.58, 0, 0.82}  % Palabras clave
+\definecolor{backcolour}{rgb}{0.95, 0.95, 0.92}  % Fondo de código
+
+% Configuraciones de párrafo y matemáticas
+\usepackage{amsmath}
+\usepackage{parskip}    % Espaciado entre párrafos.
+\usepackage{ragged2e}   % Justificación mejorada.
+
+% Configuración de secciones y encabezados
+\usepackage{titlesec}
+\titleclass{\part}{top} % Make part like a class
+\titleformat{\part}[display]
+  {\normalfont\huge\bfseries\centering}{\thepart}{20pt}{\Huge}
+\titlespacing*{\part}{172.5pt}{-60pt}{10pt}
+\titleformat{\part}
+  {\normalfont\huge\bfseries}{}{0pt}{}
+
+% Asegúrate de usar esto para mantener el estilo en las páginas de las partes
+\titleformat{\part}[display]
+  {\normalfont\huge\bfseries}{}{0pt}{}
+  [\thispagestyle{fancy}] % Aplica el estilo fancy a las páginas de las partes
+
+% Configuración avanzada de geometría
+\geometry{
+  paperwidth=21.6cm,  % Ancho del papel
+  paperheight=27.9cm,  % Largo del papel
+  left=3cm,  % Margen izquierdo
+  right=2cm,  % Margen derecho
+}
+
+% Configuración de encabezados y pies de página personalizados
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+%\fancyhead[L]{\raisebox{0.20cm}{\textbf{Métodos Computacionales en Obras Civiles}}}
+%\fancyhead[R]{\raisebox{0.1cm}{\includegraphics[width=0.25\linewidth]{LOGO_UNIVERSIDAD.jpg}}}
+%\fancyhead[C]{\rule{\textwidth}{0.6pt}}
+%\fancyfoot[C]{\rule{\textwidth}{0.6pt}}
+%\fancyfoot[R]{\raisebox{-1.5\baselineskip}{\thepage}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\fancyhead[R]{\thepage} % Número de página a la derecha en el encabezado
+
+% Configuracion de bibliografia
+\usepackage{natbib}
+\bibliographystyle{unsrtnat}  % Puedes cambiarlo por `unsrtnat`, `abbrvnat`, etc.
+
+\begin{document}
+
+\begin{titlepage}
+    \begin{center}
+        
+    
+    \vspace*{1cm}
+
+
+    \textbf{\Large Mejora de encoder de imagen para clasificacion de documentos historicos a travez de dibujos}
+  
+    \vspace{1cm}
+    
+    \textbf{Bernardo Caprile y Lukas Wolff}\\
+    Facultad de Ingeniería y Ciencias Aplicadas, Universidad de los Andes, Santiago de Chile\\
+    e-mail: \href{mailto:lwolff@miuandes.cl}{lwolff@miuandes.cl}\\
+    GitHub: \href{https://github.com/LukasWolff2002/TAREA_1_Estadistica_y_Dise-o}{Repositorio}
+    \vspace{2cm}
+    
+    \textbf{ABSTRACT}
+    \end{center}
+    \vspace{0.5cm}
+    
+    Resumen aqui
+
+
+    \vspace{1cm}
+    
+    \textit{Key words:} \textit{}
+    
+\end{titlepage}
+
+\newpage
+\section{Introducción}
+
+Con el objetivo de mejorar el análisis de documentos históricos, se han desarrollado diversas soluciones basadas en inteligencia artificial. Estas abarcan desde el reconocimiento de patrones textuales hasta la extracción de características visuales en imágenes de documentos, tal como se expone en el estudio de \cite{saavedra2025leveraging}. En este contexto, una de las metodologías emergentes es el uso de codificadores de imágenes basados en bocetos (\textit{sketch-based image encoders}), cuyo enfoque se fundamenta en la premisa de que los dibujos a mano alzada constituyen un medio rápido, intuitivo y eficaz para abstraer conceptos visuales. La importancia de estas representaciones abstractas es tal que ha impulsado avances recientes en la síntesis automática de bocetos mediante modelos generativos complejos \cite{wu2025one}. Llevando este potencial al ámbito del análisis patrimonial, estudios recientes \cite{torres2021compact, wang2024sketchy} han demostrado que los \textit{sketches} no solo son útiles para representar ideas de manera ágil, sino que también pueden mejorar significativamente el rendimiento en tareas de clasificación y recuperación de registros históricos. Esto ocurre porque los bocetos logran capturar información estructural y semántica que a menudo está ausente o es difícil de describir en el texto, como la silueta arquitectónica de un edificio o la disposición espacial de un lugar.
+
+Sin embargo, su implementación enfrenta el desafío de la brecha de dominio (\textit{domain gap}) entre la simplicidad geométrica de un boceto y la complejidad visual de los documentos históricos, que suelen presentar ruido y degradación. Frente a esto, se plantea la hipótesis de que los codificadores preentrenados mediante auto-supervisión en este dominio específico poseen representaciones visuales lo suficientemente robustas para superar esta diferencia estructural.
+
+Bajo esta premisa, el objetivo global del presente trabajo es proponer un método de detección de patrones guiado por bocetos (\textit{sketches}). Como primer paso, el objetivo específico de este informe es evaluar el rendimiento del codificador skDINO en tareas de recuperación (\textit{retrieval}). Para ello, se presenta una metodología diseñada para optimizar un codificador de imágenes destinado a la clasificación de documentos históricos a través de dibujos, utilizando el codificador DINO entrenado sobre un conjunto de datos especializado.
+
+\section{Metodología}
+
+Para evaluar la capacidad de recuperación (\textit{retrieval}) de documentos históricos guiada por bocetos, se implementó un flujo de trabajo centrado en la extracción de características mediante modelos basados en transformadores visuales con auto-supervisión. A continuación, se detalla la configuración del modelo, los pesos seleccionados y el protocolo métrico de evaluación.
+
+\subsection{Arquitectura del Modelo y Pesos}
+El codificador visual empleado corresponde a la arquitectura \textbf{skDINO} (específicamente la variante \texttt{S3birDinov3}). Este modelo está diseñado para abstraer características semánticas robustas y reducir la brecha de dominio (\textit{domain gap}) inherente entre la simplicidad geométrica de los bocetos y el ruido visual de los registros históricos. 
+
+Para los experimentos presentados en este informe, el modelo fue instanciado utilizando los pesos pre-entrenados \texttt{skDinoV3\_sketchy.ckpt}. Estos pesos provienen de un proceso de entrenamiento previo sobre el conjunto de datos \textit{Sketchy}, el cual está especializado en emparejar dibujos a mano alzada con fotografías reales. Al cargar estos pesos, el modelo hereda una capacidad inicial altamente optimizada para la detección de patrones abstractos y formas estructurales.
+
+\subsection{Protocolo de Evaluación}
+La evaluación del codificador se enmarca de forma estricta en una tarea de recuperación de imágenes basada en bocetos (\textit{Sketch-Based Image Retrieval} o SBIR). El procedimiento iterativo de evaluación consta de las siguientes etapas:
+
+\begin{enumerate}
+    \item \textbf{Extracción de Características (Embeddings):} Se utiliza el modelo en modo de inferencia (\textit{eval mode}) para procesar el conjunto de datos completo, compuesto tanto por los bocetos de consulta (\textit{queries}) como por el catálogo de documentos históricos (\textit{gallery}). A través del modelo, cada imagen y boceto es mapeado a un espacio latente compartido, generando vectores de características densos de 768 dimensiones.
+    
+    \item \textbf{Normalización y Cálculo de Similitud:} Con el objetivo de realizar búsquedas precisas en el espacio métrico, todos los \textit{embeddings} extraídos se someten a una normalización de tipo \textit{L2} (\textit{L2-norm}). Posteriormente, el sistema compara el vector de cada boceto de consulta contra todos los vectores de la galería de documentos, calculando el grado de similitud para establecer un ranking continuo de relevancia.
+    
+    \item \textbf{Métricas de Rendimiento:} Las imágenes recuperadas de la galería se ordenan de forma descendente según su similitud con la consulta. La robustez y precisión del modelo se evalúan utilizando la métrica de Precisión Media (\textit{Average Precision}, AP) para las consultas individuales, así como la métrica global de Precisión Media Promedio (\textit{mean Average Precision}, mAP) para cuantificar el desempeño del codificador sobre el conjunto de evaluación en su totalidad.
+\end{enumerate}
+
+\subsection{Datasets Utilizados}
+
+\section{Resultados}
+
+\section{Conclusiones}
+\newpage
+\bibliography{referencias}  % Nombre del archivo .bib
+
+
+
+
+\end{document}
