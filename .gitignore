@@ -12,9 +12,13 @@ https:/
 Sketches/
 snap/
 venv/
+DocExplore_images/
+DocExplore_queries_web/
 .bash_history
 .bash_logout
 .bashrc
 .gitconfig
 .profile
 .wget-hsts
+¡Doc/
+s3bir_dinov2_flickr.ckpt
