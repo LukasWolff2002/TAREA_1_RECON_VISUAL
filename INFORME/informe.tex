@@ -177,6 +177,20 @@ La evaluación del codificador se enmarca de forma estricta en una tarea de recu
 
 \section{Resultados}
 
+\subsection{Brecha de Dominio}
+
+La brecha de dominio (\textit{domain gap}) se refiere a la diferencia estructural entre la simplicidad geométrica de un boceto y la complejidad visual de los documentos históricos. Esta discrepancia puede afectar negativamente el rendimiento del modelo en tareas de recuperación, ya que los patrones visuales extraídos pueden no ser representativos en el dominio objetivo. La figura \ref{fig:domain_gap} ilustra esta brecha, mostrando el rendimiento del encoder skDINO en la recuperación de documentos históricos utilizando bocetos como consultas. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Imagenes/dominios.png}
+    \vspace{-0.8cm}
+    \caption{Análisis de la separación de dominios mediante la densidad de similitud de coseno. La distribución azul representa los pares intra-clase (bocetos y fotos del mismo objeto), mientras que la naranja muestra los pares inter-clase (objetos distintos).}
+    \label{fig:domain_gap}
+\end{figure}
+
+El análisis de los datos revela que el modelo logra distinguir la categoría correcta por sobre el ruido, duplicando la similitud de los pares positivos frente a los negativos. No obstante, la baja magnitud de la media en aciertos (0.28) indica que persiste una brecha de dominio (domain gap) considerable, donde el encoder aún percibe diferencias estructurales importantes entre el boceto y la imagen real. Esta cercanía entre ambas distribuciones sugiere una zona de solapamiento que podría afectar la precisión en consultas complejas, señalando la necesidad de una mayor adaptación semántica para fortalecer la confianza en la recuperación de patrones.
+
 \section{Conclusiones}
 
 \newpage
