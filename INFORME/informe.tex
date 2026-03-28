@@ -160,7 +160,7 @@ Bajo esta premisa, el objetivo global del presente trabajo es proponer un métod
 Para evaluar la capacidad de recuperación (\textit{retrieval}) de documentos históricos guiada por bocetos, se implementó un flujo de trabajo centrado en la extracción de características mediante modelos basados en transformadores visuales con auto-supervisión. A continuación, se detalla la configuración del modelo, los pesos seleccionados y el protocolo métrico de evaluación.
 
 \subsection{Arquitectura del Modelo y Pesos}
-El codificador visual empleado corresponde a la arquitectura \textbf{skDINO} (específicamente la variante \texttt{S3birDinov3}). Este modelo está diseñado para abstraer características semánticas robustas y reducir la brecha de dominio (\textit{domain gap}) inherente entre la simplicidad geométrica de los bocetos y el ruido visual de los registros históricos. 
+El codificador visual empleado corresponde a la arquitectura skDINO(específicamente la variante \texttt{S3birDinov3}). Este modelo está diseñado para abstraer características semánticas robustas y reducir la brecha de dominio (\textit{domain gap}) inherente entre la simplicidad geométrica de los bocetos y el ruido visual de los registros históricos. 
 
 Para los experimentos presentados en este informe, el modelo fue instanciado utilizando los pesos pre-entrenados \texttt{skDinoV3\_sketchy.ckpt}. Estos pesos provienen de un proceso de entrenamiento previo sobre el conjunto de datos \textit{Sketchy}, el cual está especializado en emparejar dibujos a mano alzada con fotografías reales. Al cargar estos pesos, el modelo hereda una capacidad inicial altamente optimizada para la detección de patrones abstractos y formas estructurales.
 
