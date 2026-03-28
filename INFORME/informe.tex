@@ -15,7 +15,9 @@
 % Paquetes para manejo de colores y gráficos
 \usepackage{xcolor}      % Define y utiliza colores.
 \usepackage{graphicx}    % Permite la inserción de imágenes.
+\usepackage{subcaption}
 \usepackage{tikz}        % Creación de gráficos vectoriales.
+
 
 % Configuración de enlaces y referencias cruzadas
 \usepackage{hyperref}
@@ -174,7 +176,29 @@ La evaluación del codificador se enmarca de forma estricta en una tarea de recu
 \end{enumerate}
 
 \subsection{Dataset Utilizado}
-Para este proyecto se ocuparon 2 Datasets, el primer dataset cosnta de 456 Sketches de la misma dimensión y el segundo es un dataset de 1447 imágenes recortadas de diferentes dimensiones enfocadas en figuras de documentos históricos. Ambos datasets fueron proporcionados por el curso y se encuentran disponibles en el repositorio de GitHub del proyecto.
+Para este proyecto se ocuparon 2 datasets, el primer dataset cosnta de 456 Sketches de la misma dimensión y el segundo es un dataset de 1447 imágenes recortadas de diferentes dimensiones enfocadas en figuras de documentos históricos. Ambos datasets fueron proporcionados por el curso y se encuentran disponibles en el siguiente \href{http://201.238.213.114:2280/sketchapp/get_files/DocExplore}{link}. La figura \ref{fig:resultados_completos} muestra ejemplos representativos del dataset utilizado para la evaluación del codificador skDINO.
+
+\begin{figure}[h]
+     \centering % <--- ESTO es lo que mantiene el bloque total en el centro de la página
+     
+     % --- Imagen Izquierda (a) ---
+     \begin{subfigure}[b]{0.2\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Imagenes/149.jpg}
+         \caption*{(a)}
+     \end{subfigure}
+     \hspace{10pt} % <--- Ajusta este valor para acercar o alejar (ej: 5pt, 20pt)
+     % --- Imagen Derecha (b) ---
+     \begin{subfigure}[b]{0.2\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Imagenes/sketch_1_DocExplore_croix_208_4x_208.jpeg}
+         \caption*{(b)}
+     \end{subfigure}
+     
+     \vspace{10pt}
+     \caption{Ejemplos representativos del dataset utilizado para la evaluación del codificador skDINO. La imagen (a) muestra un documento histórico con su complejidad visual, mientras que la imagen (b) presenta un boceto correspondiente, evidenciando la brecha de dominio entre ambos tipos de representaciones.}
+     \label{fig:resultados_completos}
+\end{figure}
 
 \section{Resultados}
 
