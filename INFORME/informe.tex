@@ -202,7 +202,15 @@ Para este proyecto se ocuparon 2 datasets, el primer dataset cosnta de 456 Sketc
 
 \section{Resultados}
 
-En cuanto a los resultados globales, se alcanzó un valor de mAP Global de 46.94\%, sin embargo, este valor se ve influenciado por la falta de Sketches, ya que solo existen sketches de 8 categorías. Si se evalúa el rendimiento del modelo solo en estas categorías, se obtiene un mAP de 84.03\%, lo que indica que el modelo tiene un desempeño significativamente mejor cuando se limita a las categorías para las cuales existen bocetos de consulta disponibles. 
+En cuanto a los resultados globales, se alcanzó un valor de mAP Global de 46.94\%, sin Sin embargo, este valor se ve influenciado por la falta de Sketches, ya que solo existen sketches de 8 categorías. Si se evalúa el rendimiento del modelo solo en estas categorías, se obtiene un mAP de 84.03\%, lo que indica que el modelo tiene un desempeño significativamente mejor cuando se limita a las categorías para las cuales existen bocetos de consulta disponibles. La figura \ref{fig:dispersión_clases} muestra un análisis de la dispersión de clases en el espacio latente del codificador skDINO, evidenciando la capacidad del modelo para agrupar visualmente las categorías a pesar de la brecha de dominio.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Imagenes/dispersion_clases_skdino.png}
+    \vspace{-0.8cm}
+    \caption{Análisis de la dispersión de clases en el espacio latente del codificador skDINO. Cada punto representa un documento histórico, coloreado según su categoría, evidenciando la capacidad del modelo para agrupar visualmente las categorías a pesar de la brecha de dominio.}
+    \label{fig:dispersión_clases}
+\end{figure}
 
 \subsection{Brecha de Dominio}
 
