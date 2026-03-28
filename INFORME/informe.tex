@@ -162,18 +162,25 @@ Para evaluar la capacidad de recuperación (\textit{retrieval}) de documentos hi
 \subsection{Arquitectura del Modelo y Pesos}
 El codificador visual empleado corresponde a la arquitectura skDINO(específicamente la variante \texttt{S3birDinov3}). Este modelo está diseñado para abstraer características semánticas robustas y reducir la brecha de dominio (\textit{domain gap}) inherente entre la simplicidad geométrica de los bocetos y el ruido visual de los registros históricos. 
 
-Para los experimentos presentados en este informe, el modelo fue instanciado utilizando los pesos pre-entrenados \texttt{skDinoV3\_sketchy.ckpt}. Estos pesos provienen de un proceso de entrenamiento previo sobre el conjunto de datos \textit{Sketchy}, el cual está especializado en emparejar dibujos a mano alzada con fotografías reales. Al cargar estos pesos, el modelo hereda una capacidad inicial altamente optimizada para la detección de patrones abstractos y formas estructurales.
+Para los experimentos presentados en este informe, el modelo fue instanciado utilizando los pesos pre-entrenados \texttt{skDinoV3\_sketchy.ckpt}. Estos pesos provienen de un proceso de entrenamiento previo sobre el conjunto de datos \textit{Sketchy}, el cual está especializado en emparejar dibujos a mano alzada con fotografías reales.
 
 \subsection{Protocolo de Evaluación}
 La evaluación del codificador se enmarca de forma estricta en una tarea de recuperación de imágenes basada en bocetos (\textit{Sketch-Based Image Retrieval} o SBIR). El procedimiento iterativo de evaluación consta de las siguientes etapas:
 
-\begin{enumerate}
-    \item \textbf{Extracción de Características (Embeddings):} Se utiliza el modelo en modo de inferencia (\textit{eval mode}) para procesar el conjunto de datos completo, compuesto tanto por los bocetos de consulta (\textit{queries}) como por el catálogo de documentos históricos (\textit{gallery}). A través del modelo, cada imagen y boceto es mapeado a un espacio latente compartido, generando vectores de características densos de 768 dimensiones.
-    
-    \item \textbf{Normalización y Cálculo de Similitud:} Con el objetivo de realizar búsquedas precisas en el espacio métrico, todos los \textit{embeddings} extraídos se someten a una normalización de tipo \textit{L2} (\textit{L2-norm}). Posteriormente, el sistema compara el vector de cada boceto de consulta contra todos los vectores de la galería de documentos, calculando el grado de similitud para establecer un ranking continuo de relevancia.
-    
-    \item \textbf{Métricas de Rendimiento:} Las imágenes recuperadas de la galería se ordenan de forma descendente según su similitud con la consulta. La robustez y precisión del modelo se evalúan utilizando la métrica de Precisión Media (\textit{Average Precision}, AP) para las consultas individuales, así como la métrica global de Precisión Media Promedio (\textit{mean Average Precision}, mAP) para cuantificar el desempeño del codificador sobre el conjunto de evaluación en su totalidad.
-\end{enumerate}
+(i) \textbf{Extracción de Características (Embeddings):} Se utiliza el modelo en modo de inferencia (\textit{eval mode}) para procesar el conjunto de datos completo, compuesto tanto por los bocetos de consulta (\textit{queries}) como por el catálogo de documentos históricos (\textit{gallery}). A través del modelo, cada imagen y boceto es mapeado a un espacio latente compartido, generando vectores de características densos de 768 dimensiones. (ii)\textbf{Normalización y Cálculo de Similitud:} Con el objetivo de realizar búsquedas precisas en el espacio métrico, todos los \textit{embeddings} extraídos se someten a una normalización de tipo \textit{L2} (\textit{L2-norm}). Posteriormente, el sistema compara el vector de cada boceto de consulta contra todos los vectores de la galería de documentos, calculando el grado de similitud para establecer un ranking continuo de relevancia. (iii)\textbf{Métricas de Rendimiento:} Las imágenes recuperadas de la galería se ordenan de forma descendente según su similitud con la consulta. La robustez y precisión del modelo se evalúan utilizando la métrica de Precisión Media (\textit{Average Precision}, AP) para las consultas individuales, así como la métrica global de Precisión Media Promedio (\textit{mean Average Precision}, mAP) para cuantificar el desempeño del codificador sobre el conjunto de evaluación en su totalidad.
+
+\subsection{Metricas de Evaluación}
+
+\subsubsection{Average Precision (AP)}
+
+Para la evaluación del rendimiento del sistema, se utilizó la métrica Mean Average Precision (mAP). Este indicador permite cuantificar la eficacia del modelo en la recuperación de imágenes relevantes para cada consulta, promediando la Average Precision (AP) de todos los sketches evaluados. El cálculo de estas métricas se define mediante las siguientes expresiones:
+\begin{equation}
+    AP = \frac{1}{N} \sum_{k=1}^{n} P(k) \cdot rel(k) \hspace{0.5cm} mAP = \frac{1}{Q} \sum_{q=1}^{Q} AP(q)
+\end{equation}
+
+\subsubsection{Brecha de Dominio (Domain Gap)}
+
+La brecha de dominio (\textit{domain gap}) se refiere a la diferencia estructural entre la simplicidad geométrica de un boceto y la complejidad visual de los documentos históricos. Esta discrepancia puede afectar negativamente el rendimiento del modelo en tareas de recuperación, ya que los patrones visuales extraídos pueden no ser representativos en el dominio objetivo. 
 
 \subsection{Dataset Utilizado}
 Para este proyecto se ocuparon 2 datasets, el primer dataset cosnta de 456 Sketches de la misma dimensión y el segundo es un dataset de 1447 imágenes recortadas de diferentes dimensiones enfocadas en figuras de documentos históricos. Ambos datasets fueron proporcionados por el curso y se encuentran disponibles en el siguiente \href{http://201.238.213.114:2280/sketchapp/get_files/DocExplore}{link}. La figura \ref{fig:resultados_completos} muestra ejemplos representativos del dataset utilizado para la evaluación del codificador skDINO.
@@ -202,11 +209,6 @@ Para este proyecto se ocuparon 2 datasets, el primer dataset cosnta de 456 Sketc
 
 \section{Resultados}
 
-Para la evaluación del rendimiento del sistema, se utilizó la métrica Mean Average Precision (mAP). Este indicador permite cuantificar la eficacia del modelo en la recuperación de imágenes relevantes para cada consulta, promediando la Average Precision (AP) de todos los sketches evaluados. El cálculo de estas métricas se define mediante las siguientes expresiones:
-\begin{equation}
-    AP = \frac{1}{N} \sum_{k=1}^{n} P(k) \cdot rel(k) \hspace{0.5cm} mAP = \frac{1}{Q} \sum_{q=1}^{Q} AP(q)
-\end{equation}
-
 En términos de resultados globales, se alcanzó un mAP de 46.94\%. Este valor se encuentra significativamente influenciado por la degradación y baja calidad visual de los documentos históricos, lo que genera una alta tasa de falsos positivos en la mayoría de las categorías. De hecho, se observó que solo 8 categorías presentan una correlación robusta entre los sketches y las imágenes de la galería.
 
 Al aislar el análisis a este subconjunto de categorías con mejor representación, el rendimiento aumenta a un mAP de 84.03\%. Esto demuestra que el modelo posee una capacidad de discriminación notable cuando los datos de consulta son suficientes y de mejor calidad. Por consiguiente, el trabajo futuro se enfocará en estas categorías para profundizar en el análisis de la brecha de dominio (domain gap) entre los bocetos manuales y la estética de los documentos históricos. La figura \ref{fig:dispersión_clases} muestra un análisis de la dispersión de clases en el espacio latente del codificador skDINO, evidenciando la capacidad del modelo para agrupar visualmente las categorías a pesar de la brecha de dominio.
@@ -221,7 +223,7 @@ Al aislar el análisis a este subconjunto de categorías con mejor representaci�
 
 \subsection{Brecha de Dominio}
 
-La brecha de dominio (\textit{domain gap}) se refiere a la diferencia estructural entre la simplicidad geométrica de un boceto y la complejidad visual de los documentos históricos. Esta discrepancia puede afectar negativamente el rendimiento del modelo en tareas de recuperación, ya que los patrones visuales extraídos pueden no ser representativos en el dominio objetivo. La figura \ref{fig:domain_gap} ilustra esta brecha, mostrando el rendimiento del encoder skDINO en la recuperación de documentos históricos utilizando bocetos como consultas. 
+La figura \ref{fig:domain_gap} ilustra esta brecha, mostrando el rendimiento del encoder skDINO en la recuperación de documentos históricos utilizando bocetos como consultas. 
 
 \begin{figure}[h]
     \centering
