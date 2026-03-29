@@ -1,39 +1,52 @@
-\documentclass[12pt]{article} % Define la clase del documento, en este caso, un artículo
+\documentclass[11pt]{article} 
 
 % Paquetes de idioma y codificación
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[spanish]{babel}  % Ajusta el idioma del documento a español.
+\usepackage[spanish]{babel}
 
-% Paquete de geometría para configurar márgenes y tamaño de papel
-\usepackage[letterpaper, margin=3cm]{geometry}
+% Paquete de geometría (una sola vez)
+\usepackage[
+  paperwidth=21.6cm,
+  paperheight=27.9cm,
+  left=3cm,
+  right=2cm,
+  top=3cm,
+  bottom=3cm
+]{geometry}
 
 % Paquetes de tipografía
-\usepackage{mathptmx}    % Usa Times New Roman como fuente.
-\usepackage{microtype}   % Mejora la justificación del texto.
+\usepackage{mathptmx}
+\usepackage{microtype}
 
 % Paquetes para manejo de colores y gráficos
-\usepackage{xcolor}      % Define y utiliza colores.
-\usepackage{graphicx}    % Permite la inserción de imágenes.
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tikz}
 \usepackage{subcaption}
-\usepackage{tikz}        % Creación de gráficos vectoriales.
 
+% Definición de colores (ANTES de lstset que los usa)
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\definecolor{codegreen}{rgb}{0.25, 0.49, 0.48}
+\definecolor{codegray}{rgb}{0.5, 0.5, 0.5}
+\definecolor{codepurple}{rgb}{0.58, 0, 0.82}
+\definecolor{backcolour}{rgb}{0.95, 0.95, 0.92}
 
-% Configuración de enlaces y referencias cruzadas
+% Configuración de enlaces
 \usepackage{hyperref}
 \hypersetup{
-    colorlinks   = true,
-    linkcolor    = darkblue,
-    citecolor    = black,
-    filecolor    = blue,
-    urlcolor     = blue
+    colorlinks = true,
+    linkcolor  = darkblue,
+    citecolor  = black,
+    filecolor  = blue,
+    urlcolor   = blue
 }
 
-% Paquetes para la mejora visual de tablas y figuras
-\usepackage{booktabs}    % Para tablas de alta calidad.
-\usepackage{float}       % Controla la posición de figuras y tablas.
+% Paquetes para tablas y figuras
+\usepackage{booktabs}
+\usepackage{float}
 
-% Paquete para la personalización de códigos fuente
+% Personalización de códigos fuente
 \usepackage{listings}
 \lstset{
     literate=
@@ -62,64 +75,33 @@
     rulecolor=\color{black}
 }
 
-% Definición de colores al estilo Visual Studio Code
-\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}  % Enlaces
-\definecolor{codegreen}{rgb}{0.25, 0.49, 0.48}  % Comentarios
-\definecolor{codegray}{rgb}{0.5, 0.5, 0.5}  % Números y anotaciones
-\definecolor{codepurple}{rgb}{0.58, 0, 0.82}  % Palabras clave
-\definecolor{backcolour}{rgb}{0.95, 0.95, 0.92}  % Fondo de código
-
-% Configuraciones de párrafo y matemáticas
+% Matemáticas y párrafos
 \usepackage{amsmath}
-\usepackage{parskip}    % Espaciado entre párrafos.
-\usepackage{ragged2e}   % Justificación mejorada.
+\usepackage{parskip}
+\usepackage{ragged2e}
 
-% Configuración de secciones y encabezados
+% Configuración de secciones (una sola definición de \part)
 \usepackage{titlesec}
-\titleclass{\part}{top} % Make part like a class
-\titleformat{\part}[display]
-  {\normalfont\huge\bfseries\centering}{\thepart}{20pt}{\Huge}
-\titlespacing*{\part}{172.5pt}{-60pt}{10pt}
-\titleformat{\part}
-  {\normalfont\huge\bfseries}{}{0pt}{}
-
-% Asegúrate de usar esto para mantener el estilo en las páginas de las partes
 \titleformat{\part}[display]
   {\normalfont\huge\bfseries}{}{0pt}{}
-  [\thispagestyle{fancy}] % Aplica el estilo fancy a las páginas de las partes
+  [\thispagestyle{fancy}]
 
-% Configuración avanzada de geometría
-\geometry{
-  paperwidth=21.6cm,  % Ancho del papel
-  paperheight=27.9cm,  % Largo del papel
-  left=3cm,  % Margen izquierdo
-  right=2cm,  % Margen derecho
-}
-
-% Configuración de encabezados y pies de página personalizados
+% Encabezados y pies de página
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
-%\fancyhead[L]{\raisebox{0.20cm}{\textbf{Métodos Computacionales en Obras Civiles}}}
-%\fancyhead[R]{\raisebox{0.1cm}{\includegraphics[width=0.25\linewidth]{LOGO_UNIVERSIDAD.jpg}}}
-%\fancyhead[C]{\rule{\textwidth}{0.6pt}}
-%\fancyfoot[C]{\rule{\textwidth}{0.6pt}}
-%\fancyfoot[R]{\raisebox{-1.5\baselineskip}{\thepage}}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
+\fancyhead[R]{\thepage}
 
-\fancyhead[R]{\thepage} % Número de página a la derecha en el encabezado
-
-% Configuracion de bibliografia
+% Bibliografía
 \usepackage{natbib}
-\bibliographystyle{unsrtnat}  % Puedes cambiarlo por `unsrtnat`, `abbrvnat`, etc.
+\bibliographystyle{unsrtnat}
 
 \begin{document}
 
-\begin{titlepage}
     \begin{center}
         
-    
     \vspace*{1cm}
 
 
@@ -127,11 +109,11 @@
   
     \vspace{1cm}
     
-    \textbf{Bernardo Caprile y Lukas Wolff}\\
+    \textbf{Bernardo Caprile \& Lukas Wolff}\\
     Facultad de Ingeniería y Ciencias Aplicadas, Universidad de los Andes, Santiago de Chile\\
     e-mail: \href{mailto:bcaprile@miuandes.cl}{bcaprile@miuandes.cl} y \href{mailto:lwolff@miuandes.cl}{lwolff@miuandes.cl}\\
     GitHub: \href{https://github.com/LukasWolff2002/TAREA_1_RECON_VISUAL/tree/master}{Repositorio}
-    \vspace{2cm}
+    \vspace{1cm}
     
     \textbf{ABSTRACT}
     \end{center}
@@ -140,13 +122,10 @@
     Resumen aqui
 
 
-    \vspace{1cm}
+    \vspace{0.5cm}
     
     \textit{Key words:} \textit{}
-    
-\end{titlepage}
 
-\newpage
 \section{Introducción}
 
 Con el objetivo de mejorar el análisis de documentos históricos, se han desarrollado diversas soluciones basadas en inteligencia artificial. Estas abarcan desde el reconocimiento de patrones textuales hasta la extracción de características visuales en imágenes de documentos, tal como se expone en el estudio de \cite{saavedra2025leveraging}. En este contexto, una de las metodologías emergentes es el uso de codificadores de imágenes basados en bocetos (\textit{sketch-based image encoders}), cuyo enfoque se fundamenta en la premisa de que los dibujos a mano alzada constituyen un medio rápido, intuitivo y eficaz para abstraer conceptos visuales. La importancia de estas representaciones abstractas es tal que ha impulsado avances recientes en la síntesis automática de bocetos mediante modelos generativos complejos \cite{wu2025one}. Llevando este potencial al ámbito del análisis patrimonial, estudios recientes \cite{torres2021compact, wang2024sketchy} han demostrado que los \textit{sketches} no solo son útiles para representar ideas de manera ágil, sino que también pueden mejorar significativamente el rendimiento en tareas de clasificación y recuperación de registros históricos. Esto ocurre porque los bocetos logran capturar información estructural y semántica que a menudo está ausente o es difícil de describir en el texto, como la silueta arquitectónica de un edificio o la disposición espacial de un lugar.
@@ -189,14 +168,14 @@ Para este proyecto se ocuparon 2 datasets, el primer dataset cosnta de 456 Sketc
      \centering % <--- ESTO es lo que mantiene el bloque total en el centro de la página
      
      % --- Imagen Izquierda (a) ---
-     \begin{subfigure}[b]{0.2\textwidth}
+     \begin{subfigure}[b]{0.15\textwidth}
          \centering
          \includegraphics[width=\textwidth]{Imagenes/149.jpg}
          \caption*{(a)}
      \end{subfigure}
      \hspace{10pt} % <--- Ajusta este valor para acercar o alejar (ej: 5pt, 20pt)
      % --- Imagen Derecha (b) ---
-     \begin{subfigure}[b]{0.2\textwidth}
+     \begin{subfigure}[b]{0.15\textwidth}
          \centering
          \includegraphics[width=\textwidth]{Imagenes/sketch_1_DocExplore_croix_208_4x_208.jpeg}
          \caption*{(b)}
@@ -246,6 +225,11 @@ Una de las razones de a la cual atribuimos una baja en el rendimiento del modelo
 
 \newpage
 \bibliography{referencias}  % Nombre del archivo .bib
+
+\newpage
+\section{Anexos}
+
+
 
 
 
