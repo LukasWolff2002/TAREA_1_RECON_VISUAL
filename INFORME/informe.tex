@@ -119,13 +119,7 @@
     \end{center}
     \vspace{0.5cm}
     
-    Resumen aqui
-
-
-    \vspace{0.5cm}
     
-    \textit{Key words:} \textit{}
-
 \section{Introducción}
 
 Con el objetivo de mejorar el análisis de documentos históricos, se han desarrollado diversas soluciones basadas en inteligencia artificial. Estas abarcan desde el reconocimiento de patrones textuales hasta la extracción de características visuales en imágenes de documentos, tal como se expone en el estudio de \cite{saavedra2025leveraging}. En este contexto, una de las metodologías emergentes es el uso de codificadores de imágenes basados en bocetos (\textit{sketch-based image encoders}), cuyo enfoque se fundamenta en la premisa de que los dibujos a mano alzada constituyen un medio rápido, intuitivo y eficaz para abstraer conceptos visuales. La importancia de estas representaciones abstractas es tal que ha impulsado avances recientes en la síntesis automática de bocetos mediante modelos generativos complejos \cite{wu2025one}. Llevando este potencial al ámbito del análisis patrimonial, estudios recientes \cite{torres2021compact, wang2024sketchy} han demostrado que los \textit{sketches} no solo son útiles para representar ideas de manera ágil, sino que también pueden mejorar significativamente el rendimiento en tareas de clasificación y recuperación de registros históricos. Esto ocurre porque los bocetos logran capturar información estructural y semántica que a menudo está ausente o es difícil de describir en el texto, como la silueta arquitectónica de un edificio o la disposición espacial de un lugar.
@@ -215,9 +209,57 @@ La figura \ref{fig:domain_gap} ilustra esta brecha, mostrando el rendimiento del
 El análisis de los datos revela que el modelo logra distinguir la categoría correcta por sobre el ruido, duplicando la similitud de los pares positivos frente a los negativos. No obstante, la baja magnitud de la media en aciertos (0.28) indica que persiste una brecha de dominio (domain gap) considerable, donde el encoder aún percibe diferencias estructurales importantes entre el boceto y la imagen real. Esta cercanía entre ambas distribuciones sugiere una zona de solapamiento que podría afectar la precisión en consultas complejas, señalando la necesidad de una mayor adaptación semántica para fortalecer la confianza en la recuperación de patrones.
 
 
-\subsection{Análisis} %Este va al final final  
-Una de las razones de a la cual atribuimos una baja en el rendimiento del modelo es que todos los bocetos tienen la misma dimensión, mientras que las imágenes de la galería tienen diferentes dimensiones. Esto puede llevar a generar una baja en la presición del modelo, ya que el modelo puede estar aprendiendo a identificar patrones relacionados con la dimensión de la imagen en lugar de los patrones visuales relevantes para la tarea de recuperación. 
+\subsection{Discusión}
 
+Los resultados obtenidos revelan un comportamiento heterogéneo del codificador skDINO, 
+con un mAP global de 46.94\% que encubre una división marcada entre las categorías 
+evaluadas. La Tabla~\ref{tab:resultados} muestra que solo 8 de las 19 categorías 
+logran un mAP mayor a cero, todas ellas correspondientes a patrones con morfología 
+geométrica consistente o siluetas características bien definidas. En contraste, las 
+11 categorías con mAP nulo corresponden principalmente a caracteres caligráficos 
+(\textit{s}, \textit{d}, \textit{t}, \textit{petit}) y separadores decorativos 
+(\textit{simple}, \textit{double}, \textit{triple}), cuya alta variabilidad visual 
+intra-clase impide que un boceto individual sea representativo del conjunto, 
+independientemente del número de ejemplos disponibles.
+
+\begin{table}[h]
+\centering
+\caption{Rendimiento del codificador skDINO para las categorías con mAP $> 0$.}
+\label{tab:resultados}
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Categoría} & \textbf{N} & \textbf{mAP} & \textbf{Top-1} & \textbf{Top-5} & \textbf{Top-10} \\
+\midrule
+losange       & 36  & 0.9732 & 0.9722 & 0.9722 & 0.9722 \\
+marqeur       & 139 & 0.7971 & 0.9065 & 0.9353 & 0.9640 \\
+croix         & 32  & 0.7489 & 0.7188 & 0.8750 & 0.9375 \\
+pdp           & 10  & 0.7481 & 0.9000 & 1.0000 & 1.0000 \\
+encadrement   & 15  & 0.7416 & 0.8000 & 0.8667 & 0.8667 \\
+rubanlettrine & 26  & 0.6394 & 0.8462 & 0.9231 & 0.9615 \\
+bateau        & 11  & 0.6086 & 0.8182 & 0.9091 & 0.9091 \\
+status        & 4   & 0.5749 & 0.5000 & 0.7500 & 0.7500 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El segundo factor limitante es la brecha de dominio entre bocetos y documentos 
+históricos. El codificador fue preentrenado sobre el dataset \textit{Sketchy}, 
+compuesto por fotografías de objetos cotidianos con fondos limpios, lo que genera 
+representaciones latentes sistemáticamente desplazadas respecto a las de imágenes 
+medievales con degradación de tinta, ruido de digitalización y texturas de pergamino. 
+Esto se manifiesta en la baja magnitud absoluta de la similitud coseno para pares 
+positivos (media = 0.28), y en la separación visible en el t-SNE entre los bocetos 
+de consulta y sus categorías correspondientes en la galería.
+
+Finalmente, la asimetría dimensional entre consultas y galería agrava el problema: 
+al redimensionar todas las entradas a $224 \times 224$ píxeles, los patrones con 
+proporciones extremas sufren una distorsión geométrica que destruye información 
+estructural relevante, efecto consistente con los hallazgos de \cite{saavedra2025leveraging} 
+para patrones no cuadrados. Para abordar estas limitaciones, se propone como trabajo 
+futuro: adaptar el encoder mediante \textit{fine-tuning} con LoRA sobre el dataset 
+DocExplore, reduciendo la brecha de dominio de forma controlada; y aplicar 
+normalización de proporciones antes del redimensionamiento para preservar la 
+geometría de los patrones.
 
 \section{Conclusiones}
 
