@@ -124,9 +124,20 @@
 
 Con el objetivo de mejorar el análisis de documentos históricos, se han desarrollado diversas soluciones basadas en inteligencia artificial. Estas abarcan desde el reconocimiento de patrones textuales hasta la extracción de características visuales en imágenes de documentos, tal como se expone en el estudio de \cite{saavedra2025leveraging}. En este contexto, una de las metodologías emergentes es el uso de codificadores de imágenes basados en bocetos (\textit{sketch-based image encoders}), cuyo enfoque se fundamenta en la premisa de que los dibujos a mano alzada constituyen un medio rápido, intuitivo y eficaz para abstraer conceptos visuales. La importancia de estas representaciones abstractas es tal que ha impulsado avances recientes en la síntesis automática de bocetos mediante modelos generativos complejos \cite{wu2025one}. Llevando este potencial al ámbito del análisis patrimonial, estudios recientes \cite{torres2021compact, wang2024sketchy} han demostrado que los \textit{sketches} no solo son útiles para representar ideas de manera ágil, sino que también pueden mejorar significativamente el rendimiento en tareas de clasificación y recuperación de registros históricos. Esto ocurre porque los bocetos logran capturar información estructural y semántica que a menudo está ausente o es difícil de describir en el texto, como la silueta arquitectónica de un edificio o la disposición espacial de un lugar.
 
-Sin embargo, su implementación enfrenta el desafío de la brecha de dominio (\textit{domain gap}) entre la simplicidad geométrica de un boceto y la complejidad visual de los documentos históricos, que suelen presentar ruido y degradación. Frente a esto, se plantea la hipótesis de que los codificadores preentrenados mediante auto-supervisión en este dominio específico poseen representaciones visuales lo suficientemente robustas para superar esta diferencia estructural.
+Sin embargo, su implementación enfrenta el desafío de la brecha de dominio 
+(\textit{domain gap}) entre la simplicidad geométrica de un boceto y la complejidad 
+visual de los documentos históricos, que suelen presentar ruido y degradación. 
+Frente a esto, se plantea la hipótesis de que skDINO, preentrenado mediante 
+auto-supervisión sobre pares boceto-foto del dataset \textit{Sketchy}, posee 
+representaciones visuales suficientemente generales para establecer correspondencias 
+semánticas con patrones gráficos de documentos medievales sin reentrenamiento 
+específico.
 
-Bajo esta premisa, el objetivo global del presente trabajo es proponer un método de detección de patrones guiado por bocetos (\textit{sketches}). Como primer paso, el objetivo específico de este informe es evaluar el rendimiento del codificador skDINO en tareas de recuperación (\textit{retrieval}). Para ello, se presenta una metodología diseñada para optimizar un codificador de imágenes destinado a la clasificación de documentos históricos a través de dibujos, utilizando el codificador DINO entrenado sobre un conjunto de datos especializado.
+Bajo esta premisa, el objetivo de este informe es evaluar el rendimiento de 
+skDINO como línea base para la recuperación de documentos históricos guiada por 
+bocetos (\textit{Sketch-Based Image Retrieval}, SBIR), caracterizando tanto su 
+capacidad discriminativa por categoría como la magnitud de la brecha de dominio 
+entre ambos tipos de representación visual.
 
 \section{Metodología}
 
@@ -138,9 +149,18 @@ El codificador visual empleado corresponde a la arquitectura skDINO(específicam
 Para los experimentos presentados en este informe, el modelo fue instanciado utilizando los pesos pre-entrenados \texttt{skDinoV3\_sketchy.ckpt}. Estos pesos provienen de un proceso de entrenamiento previo sobre el conjunto de datos \textit{Sketchy}, el cual está especializado en emparejar dibujos a mano alzada con fotografías reales.
 
 \subsection{Protocolo de Evaluación}
-La evaluación del codificador se enmarca de forma estricta en una tarea de recuperación de imágenes basada en bocetos (\textit{Sketch-Based Image Retrieval} o SBIR). El procedimiento iterativo de evaluación consta de las siguientes etapas:
 
-(i) \textbf{Extracción de Características (Embeddings):} Se utiliza el modelo en modo de inferencia (\textit{eval mode}) para procesar el conjunto de datos completo, compuesto tanto por los bocetos de consulta (\textit{queries}) como por el catálogo de documentos históricos (\textit{gallery}). A través del modelo, cada imagen y boceto es mapeado a un espacio latente compartido, generando vectores de características densos de 768 dimensiones. (ii)\textbf{Normalización y Cálculo de Similitud:} Con el objetivo de realizar búsquedas precisas en el espacio métrico, todos los \textit{embeddings} extraídos se someten a una normalización de tipo \textit{L2} (\textit{L2-norm}). Posteriormente, el sistema compara el vector de cada boceto de consulta contra todos los vectores de la galería de documentos, calculando el grado de similitud para establecer un ranking continuo de relevancia. (iii)\textbf{Métricas de Rendimiento:} Las imágenes recuperadas de la galería se ordenan de forma descendente según su similitud con la consulta. La robustez y precisión del modelo se evalúan utilizando la métrica de Precisión Media (\textit{Average Precision}, AP) para las consultas individuales, así como la métrica global de Precisión Media Promedio (\textit{mean Average Precision}, mAP) para cuantificar el desempeño del codificador sobre el conjunto de evaluación en su totalidad.
+La evaluación sigue el estándar SBIR en tres etapas: (i)~\textbf{extracción de 
+embeddings}, donde skDINO procesa en modo inferencia todos los bocetos y documentos 
+de la galería, proyectando cada entrada a un espacio latente compartido de 768 
+dimensiones; (ii)~\textbf{similitud coseno}, aplicando normalización $L_2$ a todos 
+los vectores y rankeando los documentos de la galería por similitud respecto a cada 
+boceto de consulta; y (iii)~\textbf{evaluación}, cuantificando el rendimiento 
+mediante AP por consulta y mAP global (Ecuación~\ref{eq:metrics}), precisión Top-1, 
+Top-5 y Top-10, y una diferenciación explícita entre categorías con mAP $> 0$ y 
+mAP $= 0$. Adicionalmente, se analiza la brecha de dominio mediante la distribución 
+de similitudes coseno entre pares positivos (intra-clase) y negativos (inter-clase), 
+y se visualiza la estructura del espacio latente mediante proyección t-SNE.
 
 \subsection{Metricas de Evaluación}
 
@@ -156,27 +176,37 @@ Para la evaluación del rendimiento del sistema, se utilizó la métrica Mean Av
 La brecha de dominio (\textit{domain gap}) se refiere a la diferencia estructural entre la simplicidad geométrica de un boceto y la complejidad visual de los documentos históricos. Esta discrepancia puede afectar negativamente el rendimiento del modelo en tareas de recuperación, ya que los patrones visuales extraídos pueden no ser representativos en el dominio objetivo. 
 
 \subsection{Dataset Utilizado}
-Para este proyecto se ocuparon 2 datasets, el primer dataset cosnta de 456 Sketches de la misma dimensión y el segundo es un dataset de 1447 imágenes recortadas de diferentes dimensiones enfocadas en figuras de documentos históricos. Ambos datasets fueron proporcionados por el curso y se encuentran disponibles en el siguiente \href{http://201.238.213.114:2280/sketchapp/get_files/DocExplore}{link}. La figura \ref{fig:resultados_completos} muestra ejemplos representativos del dataset utilizado para la evaluación del codificador skDINO.
+
+Se utilizaron dos conjuntos de datos pertenecientes al dataset disponible en el siguiente 
+\href{http://201.238.213.114:2280/sketchapp/get_files/DocExplore}{enlace}. 
+El primero corresponde a \textbf{456 bocetos} de consulta de dimensión fija, 
+distribuidos en 19 categorías de patrones gráficos medievales, que van desde 
+figuras geométricas (\textit{losange}, \textit{croix}) hasta caracteres 
+caligráficos (\textit{s}, \textit{petit}) y elementos decorativos 
+(\textit{rubanlettrine}, \textit{encadrement}). El segundo es una galería de 
+\textbf{1\,447 imágenes} recortadas de manuscritos de los siglos X al XVI, 
+con dimensiones variables y las características propias de los documentos 
+históricos: degradación de tinta, ruido de digitalización y texturas de 
+pergamino. La Figura~\ref{fig:resultados_completos} ilustra la brecha visual 
+entre ambos dominios.
 
 \begin{figure}[h]
-     \centering % <--- ESTO es lo que mantiene el bloque total en el centro de la página
-     
-     % --- Imagen Izquierda (a) ---
+     \centering
      \begin{subfigure}[b]{0.15\textwidth}
          \centering
          \includegraphics[width=\textwidth]{Imagenes/149.jpg}
          \caption*{(a)}
      \end{subfigure}
-     \hspace{10pt} % <--- Ajusta este valor para acercar o alejar (ej: 5pt, 20pt)
-     % --- Imagen Derecha (b) ---
+     \hspace{10pt}
      \begin{subfigure}[b]{0.15\textwidth}
          \centering
          \includegraphics[width=\textwidth]{Imagenes/sketch_1_DocExplore_croix_208_4x_208.jpeg}
          \caption*{(b)}
      \end{subfigure}
-     
-     \vspace{0pt}
-     \caption{Ejemplos representativos del dataset utilizado para la evaluación del codificador skDINO. La imagen (a) muestra un documento histórico con su complejidad visual, mientras que la imagen (b) presenta un boceto correspondiente, evidenciando la brecha de dominio entre ambos tipos de representaciones.}
+     \caption{Ejemplos del dataset DocExplore. (a)~Imagen histórica de la galería 
+     con su complejidad visual característica. (b)~Boceto de consulta de la 
+     categoría \textit{croix}, evidenciando la brecha de dominio entre ambas 
+     representaciones.}
      \label{fig:resultados_completos}
 \end{figure}
 
