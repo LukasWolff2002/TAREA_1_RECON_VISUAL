@@ -194,9 +194,9 @@ Al aislar el análisis a este subconjunto de categorías con mejor representaci�
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=1.0\textwidth]{Imagenes/tsne_paper_style.png}
+    \includegraphics[width=1.0\textwidth]{Imagenes/tsne_consistente_map.png}
     \vspace{-0.8cm}
-    \caption{Análisis de la dispersión de clases en el espacio latente del codificador skDINO. Cada punto representa un documento histórico, coloreado según su categoría, evidenciando la capacidad del modelo para agrupar visualmente las categorías a pesar de la brecha de dominio.}
+    \caption{Análisis de la dispersión de clases (con mAP mayor a 0) en el espacio latente del codificador skDINO. Cada punto representa un documento histórico, coloreado según su categoría, evidenciando la capacidad del modelo para agrupar visualmente las categorías, donde, en algunos casos, se evidencia una baja brecha en el dominio}
     \label{fig:dispersión_clases}
 \end{figure}
 
@@ -229,9 +229,104 @@ Una de las razones de a la cual atribuimos una baja en el rendimiento del modelo
 \newpage
 \section{Anexos}
 
+A continuacion se presentan imagenes de ejemplo de las clases que logran un mAP mayor a 0:
 
+\begin{figure}[H]
+     \centering % <--- ESTO es lo que mantiene el bloque total en el centro de la página
+     
+     % --- Imagen Izquierda (a) ---
+     \begin{subfigure}[b]{0.15\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Imagenes/losange/282.jpg}
+         \caption*{losange}
+     \end{subfigure}
+     \hspace{10pt} % <--- Ajusta este valor para acercar o alejar (ej: 5pt, 20pt)
+     % --- Imagen Derecha (b) ---
+     \begin{subfigure}[b]{0.15\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Imagenes/marqeur/467.jpg}
+         \caption*{marqeur}
+     \end{subfigure}
+     \hspace{10pt} % <--- Ajusta este valor para acercar o alejar (ej: 5pt, 20pt)
+     % --- Imagen Derecha (b) ---
+     \begin{subfigure}[b]{0.15\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Imagenes/bateau/1348.jpg}
+         \caption*{bateau}
+     \end{subfigure}
+     \hspace{10pt} % <--- Ajusta este valor para acercar o alejar (ej: 5pt, 20pt)
+     % --- Imagen Derecha (b) ---
+     \begin{subfigure}[b]{0.15\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Imagenes/croix/190.jpg}
+         \caption*{croix}
+     \end{subfigure}
+\end{figure}
 
+\begin{figure}[H]
+     \centering % <--- ESTO es lo que mantiene el bloque total en el centro de la página
+     
+     % --- Imagen Izquierda (a) ---
+     \begin{subfigure}[b]{0.15\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Imagenes/encadrement/0.jpg}
+         \caption*{encadrement}
+     \end{subfigure}
+     \hspace{10pt} % <--- Ajusta este valor para acercar o alejar (ej: 5pt, 20pt)
+     % --- Imagen Derecha (b) ---
+     \begin{subfigure}[b]{0.15\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Imagenes/pdp/1361.jpg}
+         \caption*{pdp}
+     \end{subfigure}
+     \hspace{10pt} % <--- Ajusta este valor para acercar o alejar (ej: 5pt, 20pt)
+     % --- Imagen Derecha (b) ---
+     \begin{subfigure}[b]{0.15\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Imagenes/rubanlettrine/399.jpg}
+         \caption*{rubanlettrine}
+     \end{subfigure}
+     \hspace{10pt} % <--- Ajusta este valor para acercar o alejar (ej: 5pt, 20pt)
+     % --- Imagen Derecha (b) ---
+     \begin{subfigure}[b]{0.15\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Imagenes/status/884.jpg}
+         \caption*{status}
+     \end{subfigure}
+\end{figure}
 
+Por otra parte, a continuacion se muestran imagenes de aquellas clases que no logran generar una similitud con el boceto
 
+\begin{figure}[H]
+     \centering % <--- ESTO es lo que mantiene el bloque total en el centro de la página
+     
+     % --- Imagen Izquierda (a) ---
+     \begin{subfigure}[b]{0.15\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Imagenes/S/1000.jpg}
+         \caption*{S}
+     \end{subfigure}
+     \hspace{10pt} % <--- Ajusta este valor para acercar o alejar (ej: 5pt, 20pt)
+     % --- Imagen Derecha (b) ---
+     \begin{subfigure}[b]{0.15\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Imagenes/triple_sep/1309.jpg}
+         \caption*{triple sep}
+     \end{subfigure}
+     \hspace{10pt} % <--- Ajusta este valor para acercar o alejar (ej: 5pt, 20pt)
+     % --- Imagen Derecha (b) ---
+     \begin{subfigure}[b]{0.15\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Imagenes/henri_d/876.jpg}
+         \caption*{henri d}
+     \end{subfigure}
+     \hspace{10pt} % <--- Ajusta este valor para acercar o alejar (ej: 5pt, 20pt)
+     % --- Imagen Derecha (b) ---
+     \begin{subfigure}[b]{0.15\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Imagenes/petit_A/1390.jpg}
+         \caption*{petit A}
+     \end{subfigure}
+\end{figure}
 
 \end{document}
