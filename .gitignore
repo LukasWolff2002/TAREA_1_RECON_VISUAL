@@ -15,7 +15,7 @@ venv/
 DocExplore_images/
 DocExplore_queries_web/
 S3BIR-DINO/
-S3BIR_DINO/
+S3BIR_DINO/*
 ¡Doc/
 .bash_history
 .bash_logout
