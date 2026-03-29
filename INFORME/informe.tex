@@ -118,6 +118,8 @@
     \textbf{ABSTRACT}
     \end{center}
     \vspace{0.5cm}
+
+    Este trabajo evalúa el codificador skDINO en recuperación de documentos históricos medievales guiada por bocetos (SBIR) sin reentrenamiento específico. Sobre el dataset DocExplore (456 bocetos en 19 categorías, 1\,447 imágenes de manuscritos siglos X-XVI), se alcanzó un mAP global de 46.94\%. Patrones geométricos consistentes (losange, croix, marqeur) lograron mAP = 84.03\%, mientras caracteres caligráficos obtuvieron mAP nulo por alta variabilidad intra-clase. El análisis de brecha de dominio muestra similitud coseno de 0.28 para pares positivos vs. 0.10 negativos, evidenciando discriminación categórica pero adaptación semántica insuficiente.
     
     
 \section{Introducción}
@@ -141,8 +143,6 @@ entre ambos tipos de representación visual.
 
 \section{Metodología}
 
-Para evaluar la capacidad de recuperación (\textit{retrieval}) de documentos históricos guiada por bocetos, se implementó un flujo de trabajo centrado en la extracción de características mediante modelos basados en transformadores visuales con auto-supervisión. A continuación, se detalla la configuración del modelo, los pesos seleccionados y el protocolo métrico de evaluación.
-
 \subsection{Arquitectura del Modelo y Pesos}
 El codificador visual empleado corresponde a la arquitectura skDINO(específicamente la variante \texttt{S3birDinov3}). Este modelo está diseñado para abstraer características semánticas robustas y reducir la brecha de dominio (\textit{domain gap}) inherente entre la simplicidad geométrica de los bocetos y el ruido visual de los registros históricos. 
 
@@ -156,7 +156,7 @@ de la galería, proyectando cada entrada a un espacio latente compartido de 768
 dimensiones; (ii)~\textbf{similitud coseno}, aplicando normalización $L_2$ a todos 
 los vectores y rankeando los documentos de la galería por similitud respecto a cada 
 boceto de consulta; y (iii)~\textbf{evaluación}, cuantificando el rendimiento 
-mediante AP por consulta y mAP global (Ecuación~\ref{eq:metrics}), precisión Top-1, 
+mediante AP por consulta y mAP global, precisión Top-1, 
 Top-5 y Top-10, y una diferenciación explícita entre categorías con mAP $> 0$ y 
 mAP $= 0$. Adicionalmente, se analiza la brecha de dominio mediante la distribución 
 de similitudes coseno entre pares positivos (intra-clase) y negativos (inter-clase), 
@@ -167,6 +167,7 @@ y se visualiza la estructura del espacio latente mediante proyección t-SNE.
 \subsubsection{Average Precision (AP)}
 
 Para la evaluación del rendimiento del sistema, se utilizó la métrica Mean Average Precision (mAP). Este indicador permite cuantificar la eficacia del modelo en la recuperación de imágenes relevantes para cada consulta, promediando la Average Precision (AP) de todos los sketches evaluados. El cálculo de estas métricas se define mediante las siguientes expresiones:
+
 \begin{equation}
     AP = \frac{1}{N} \sum_{k=1}^{n} P(k) \cdot rel(k) \hspace{0.5cm} mAP = \frac{1}{Q} \sum_{q=1}^{Q} AP(q)
 \end{equation}
@@ -238,19 +239,15 @@ La figura \ref{fig:domain_gap} ilustra esta brecha, mostrando el rendimiento del
 
 El análisis de los datos revela que el modelo logra distinguir la categoría correcta por sobre el ruido, duplicando la similitud de los pares positivos frente a los negativos. No obstante, la baja magnitud de la media en aciertos (0.28) indica que persiste una brecha de dominio (domain gap) considerable, donde el encoder aún percibe diferencias estructurales importantes entre el boceto y la imagen real. Esta cercanía entre ambas distribuciones sugiere una zona de solapamiento que podría afectar la precisión en consultas complejas, señalando la necesidad de una mayor adaptación semántica para fortalecer la confianza en la recuperación de patrones.
 
-
 \subsection{Discusión}
 
-Los resultados obtenidos revelan un comportamiento heterogéneo del codificador skDINO, 
-con un mAP global de 46.94\% que encubre una división marcada entre las categorías 
-evaluadas. La Tabla~\ref{tab:resultados} muestra que solo 8 de las 19 categorías 
-logran un mAP mayor a cero, todas ellas correspondientes a patrones con morfología 
-geométrica consistente o siluetas características bien definidas. En contraste, las 
-11 categorías con mAP nulo corresponden principalmente a caracteres caligráficos 
-(\textit{s}, \textit{d}, \textit{t}, \textit{petit}) y separadores decorativos 
-(\textit{simple}, \textit{double}, \textit{triple}), cuya alta variabilidad visual 
-intra-clase impide que un boceto individual sea representativo del conjunto, 
-independientemente del número de ejemplos disponibles.
+Los resultados revelan un comportamiento heterogéneo del codificador skDINO, con un 
+mAP global de 46.94\% que encubre una división marcada entre categorías. La 
+Tabla~\ref{tab:resultados} muestra que solo 8 de las 19 categorías logran mAP $> 0$, 
+correspondientes a patrones con morfología geométrica consistente. En contraste, las 
+11 categorías con mAP nulo (caracteres caligráficos como \textit{s}, \textit{d}, 
+\textit{petit} y separadores decorativos) presentan alta variabilidad visual 
+intra-clase que impide la representatividad del boceto.
 
 \begin{table}[h]
 \centering
@@ -272,27 +269,19 @@ status        & 4   & 0.5749 & 0.5000 & 0.7500 & 0.7500 \\
 \end{tabular}
 \end{table}
 
-El segundo factor limitante es la brecha de dominio entre bocetos y documentos 
-históricos. El codificador fue preentrenado sobre el dataset \textit{Sketchy}, 
-compuesto por fotografías de objetos cotidianos con fondos limpios, lo que genera 
-representaciones latentes sistemáticamente desplazadas respecto a las de imágenes 
-medievales con degradación de tinta, ruido de digitalización y texturas de pergamino. 
-Esto se manifiesta en la baja magnitud absoluta de la similitud coseno para pares 
-positivos (media = 0.28), y en la separación visible en el t-SNE entre los bocetos 
-de consulta y sus categorías correspondientes en la galería.
-
-Finalmente, la asimetría dimensional entre consultas y galería agrava el problema: 
-al redimensionar todas las entradas a $224 \times 224$ píxeles, los patrones con 
-proporciones extremas sufren una distorsión geométrica que destruye información 
-estructural relevante, efecto consistente con los hallazgos de \cite{saavedra2025leveraging} 
-para patrones no cuadrados. Para abordar estas limitaciones, se propone como trabajo 
-futuro: adaptar el encoder mediante \textit{fine-tuning} con LoRA sobre el dataset 
-DocExplore, reduciendo la brecha de dominio de forma controlada; y aplicar 
-normalización de proporciones antes del redimensionamiento para preservar la 
-geometría de los patrones.
+La brecha de dominio entre bocetos y documentos históricos constituye el segundo 
+factor limitante. El preentrenamiento sobre \textit{Sketchy} (fotografías de objetos 
+cotidianos con fondos limpios) genera representaciones latentes desplazadas respecto 
+a imágenes medievales degradadas, manifestándose en baja similitud coseno para pares 
+positivos (media = 0.28) y separación visible en t-SNE. Adicionalmente, el 
+redimensionamiento forzado a $224 \times 224$ píxeles distorsiona patrones con 
+proporciones extremas, destruyendo información estructural~\cite{saavedra2025leveraging}. 
 
 \section{Conclusiones}
 
+Este estudio demuestra que skDINO posee capacidades de transferencia limitadas pero significativas para recuperación patrimonial mediante bocetos. La efectividad depende críticamente de la morfología: patrones geométricos consistentes alcanzan mAP = 84.03\%, mientras caracteres caligráficos fracasan (mAP = 0) por variabilidad intra-clase. Persiste brecha de dominio considerable: aunque el modelo duplica la similitud de pares positivos vs. negativos (0.28 vs. 0.10), la baja magnitud absoluta y el solapamiento entre distribuciones indican adaptación semántica insuficiente. Adicionalmente, el redimensionamiento forzado a 224×224 píxeles distorsiona patrones con proporciones extremas.
+
+Como trabajo futuro se propone fine-tuning con LoRA sobre DocExplore y normalización de proporciones mediante padding adaptativo. Este estudio establece una línea base cuantitativa (mAP = 46.94\% global, 84.03\% en categorías geométricas) que valida la transferibilidad parcial de codificadores auto-supervisados a dominios patrimoniales, subrayando la necesidad de adaptación específica para extender efectividad a categorías con alta variabilidad morfológica.
 
 
 \newpage
@@ -301,7 +290,7 @@ geometría de los patrones.
 \newpage
 \section{Anexos}
 
-A continuacion se presentan imagenes de ejemplo de las clases que logran un mAP mayor a 0:
+A continuación, se presentan imágenes ilustrativas de las categorías que alcanzaron un mAP superior a cero.
 
 \begin{figure}[H]
      \centering % <--- ESTO es lo que mantiene el bloque total en el centro de la página
@@ -367,7 +356,8 @@ A continuacion se presentan imagenes de ejemplo de las clases que logran un mAP 
      \end{subfigure}
 \end{figure}
 
-Por otra parte, a continuacion se muestran imagenes de aquellas clases que no logran generar una similitud con el boceto
+\newpage
+En contraste, se muestran imágenes de las clases que presentan una baja alineación de dominios o nula similitud con sus respectivos bocetos.
 
 \begin{figure}[H]
      \centering % <--- ESTO es lo que mantiene el bloque total en el centro de la página
