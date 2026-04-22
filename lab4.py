@@ -1,120 +1,144 @@
-## 1. IMPORTACIÓN Y CONFIGURACIÓN
 import os
 import sys
 import torch
 import torch.nn.functional as F
 from torchvision import transforms
-from PIL import Image
+from PIL import Image, ImageDraw
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Añadir la ruta de los modelos (Asegúrate de que la carpeta contenedora esté en el PATH)
-sys.path.append(os.path.abspath('./iDoc')) 
-from models.vision_transformer_lora import vit_lora # Tu nuevo import
+# Configuración de iDoc
+sys.path.append(os.path.abspath('./iDoc'))
+import models
 
-## 2. FUNCIONES DE PROCESAMIENTO
+## 1. FUNCIONES DE PROCESAMIENTO
 
 def get_dynamic_patches(image_path, patch_size=16):
-    """
-    Carga la imagen original y la divide en patches sin resize.
-    Ajusta las dimensiones para que sean divisibles por patch_size.
-    """
     img = Image.open(image_path).convert("RGB")
     w, h = img.size
+    new_w, new_h = (w // patch_size) * patch_size, (h // patch_size) * patch_size
+    img = img.crop((0, 0, new_w, new_h))
     
-    # Ajustar dimensiones para que sean múltiples del patch_size (16)
-    new_w = (w // patch_size) * patch_size
-    new_h = (h // patch_size) * patch_size
-    img = img.crop((0, 0, new_w, new_h)) # Recorte mínimo para ajustar rejilla
-    
-    img_tensor = transforms.ToTensor()(img) # [3, H, W]
-    
-    # Descomponer en patches: [C, H, W] -> [Num_Patches, C, P, P]
+    img_tensor = transforms.ToTensor()(img)
     patches = img_tensor.unfold(1, patch_size, patch_size).unfold(2, patch_size, patch_size)
     grid_h, grid_w = patches.shape[1], patches.shape[2]
     
     patches = patches.contiguous().view(3, -1, patch_size, patch_size).permute(1, 0, 2, 3)
     return patches, (grid_h, grid_w), img
 
-def load_model_lora(ckpt_path, device):
-    """Carga el modelo ViT con LoRA basado en tu configuración"""
-    checkpoint = torch.load(ckpt_path, map_location="cpu", weights_only=False)
-    state_dict = checkpoint.get("state_dict", checkpoint)
-    
-    # Nota: Si obtienes un error de "Missing key" o "Unexpected key", 
-    # descomenta la siguiente línea para limpiar los prefijos (muy común en PyTorch):
-    # state_dict = {k.replace("module.", "").replace("encoder.model.", ""): v for k, v in state_dict.items()}
+def load_model(ckpt_path, device):
+    model = models.__dict__['vit_base'](patch_size=16, num_classes=0)
+    checkpoint = torch.load(ckpt_path, map_location='cpu')
+    state_dict = checkpoint.get('state_dict', checkpoint)
+    state_dict = {k.replace("module.", "").replace("encoder.model.", ""): v for k, v in state_dict.items()}
+    model.load_state_dict(state_dict, strict=False)
+    return model.to(device).eval()
 
-    model = vit_lora().to(device)
-    # strict=False es recomendable al usar LoRA por si el state_dict tiene pesos extra
-    model.load_state_dict(state_dict, strict=False) 
-    return model.eval()
+## 2. CAPA DE DETECCIÓN (ESTILO FCOS)
+
+def get_fcos_bounding_box(heatmap, threshold=0.6):
+    """
+    Simula la salida de FCOS: identifica el centro de masa de la activación 
+    y genera una caja delimitadora (bbox).
+    """
+    # 1. Binarizar el heatmap basado en un umbral
+    mask = heatmap > (heatmap.max() * threshold)
+    coords = np.argwhere(mask) # Obtener coordenadas (y, x) donde hay activación
+    
+    if len(coords) == 0:
+        return None
+
+    # 2. Definir los límites (min/max) para la caja
+    y_min, x_min = coords.min(axis=0)
+    y_max, x_max = coords.max(axis=0)
+    
+    return [x_min, y_min, x_max, y_max]
 
 ## 3. EJECUCIÓN PRINCIPAL
 
 def main():
-    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # --- CONFIGURACIÓN ---
+    PATCH_DESEADO = 128     
+    BATCH_SIZE = 128        
+    INVERTIR_MAPA = True   
+    UMBRAL_DETECCION = 0.7 # Qué tan estricto es FCOS para la caja
     
-    # Rutas actualizadas
-    CKPT = "idoc_pretrained.pth" 
-    IMG_PATH = "DocExplore_images/page1.jpg"
+    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    CKPT = "idoc_pretrained.pth"
+    IMG_PATH = "DocExplore_images/page3.jpg"
     SK_PATH = "Sketches/sketch_1_DocExplore_bateau_1349_4x_1349.jpeg"
 
-    print("Cargando modelo ViT-LoRA...")
-    model = load_model_lora(CKPT, DEVICE)
-    print("Modelo cargado y en modo evaluación.")
-    
+    model = load_model(CKPT, DEVICE)
     norm = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
-    # --- PROCESAR IMAGEN (Por Patches - Local) ---
-    img_patches, grid_dim, img_cropped = get_dynamic_patches(IMG_PATH)
+    # 1. Inferencia
+    img_patches, grid_dim, img_cropped = get_dynamic_patches(IMG_PATH, patch_size=16)
     img_patches_norm = torch.stack([norm(p) for p in img_patches]).to(DEVICE)
-
-    # --- PROCESAR SKETCH (Global) ---
-    # El sketch se redimensiona a 224x224 para obtener un vector global estándar
     sk_img = Image.open(SK_PATH).convert("RGB").resize((224, 224))
     sk_tensor_norm = norm(transforms.ToTensor()(sk_img)).unsqueeze(0).to(DEVICE)
 
-    # --- INFERENCIA ---
-    print("Realizando inferencia...")
+    img_features_list = []
     with torch.no_grad():
-        # Embeddings de los N patches de la imagen
-        img_features = model(img_patches_norm)
-        img_features = img_features[0] if isinstance(img_features, tuple) else img_features
+        for i in range(0, len(img_patches_norm), BATCH_SIZE):
+            batch = img_patches_norm[i : i + BATCH_SIZE]
+            feats = model(batch)
+            feats = feats[0] if isinstance(feats, tuple) else feats
+            img_features_list.append(feats.cpu())
         
-        # Embedding global del sketch
+        img_features = torch.cat(img_features_list, dim=0).to(DEVICE)
         sk_features = model(sk_tensor_norm)
         sk_features = sk_features[0] if isinstance(sk_features, tuple) else sk_features
 
-    # --- CÁLCULO DE SIMILITUD ---
+    # 2. Similitud
     img_features = F.normalize(img_features, p=2, dim=1)
     sk_features = F.normalize(sk_features, p=2, dim=1)
+    sim_scores = torch.mm(sk_features, img_features.t()).cpu()
     
-    # Similitud Coseno: resultado de forma [1, Num_Patches]
-    sim_scores = torch.mm(sk_features, img_features.t()).cpu().numpy()
-    # Redimensionar a la rejilla original de la imagen (H_patches, W_patches)
-    heatmap = sim_scores.reshape(grid_dim[0], grid_dim[1])
+    heatmap = sim_scores.reshape(1, 1, grid_dim[0], grid_dim[1])
+    
+    # Redimensionar al tamaño de patch visual deseado
+    if PATCH_DESEADO != 16:
+        scale = PATCH_DESEADO // 16
+        heatmap = F.avg_pool2d(heatmap, kernel_size=scale, stride=scale)
 
+    heatmap = heatmap.squeeze().numpy()
+
+    # 3. Corrección e Inversión
+    if INVERTIR_MAPA:
+        heatmap = -heatmap 
+    heatmap = (heatmap - heatmap.min()) / (heatmap.max() - heatmap.min() + 1e-8)
+
+    # 4. CAPA DE DETECCIÓN (FCOS)
+    # Obtenemos la caja en coordenadas de "parches"
+    bbox_patches = get_fcos_bounding_box(heatmap, threshold=UMBRAL_DETECCION)
+    
     # --- VISUALIZACIÓN ---
-    plt.figure(figsize=(15, 7))
+    fig, ax = plt.subplots(1, 2, figsize=(15, 7))
     
-    # Mostrar Imagen Original
-    plt.subplot(1, 2, 1)
-    plt.imshow(img_cropped)
-    plt.title(f"Documento Original ({img_cropped.size[0]}x{img_cropped.size[1]})")
-    plt.axis('off')
+    # Imagen con Bounding Box
+    ax[0].imshow(img_cropped)
+    if bbox_patches:
+        # Escalar coordenadas de parches a píxeles
+        x1, y1, x2, y2 = [c * PATCH_DESEADO for c in bbox_patches]
+        # Añadir margen de un parche para que la caja no sea tan ajustada
+        rect = plt.Rectangle((x1, y1), x2-x1 + PATCH_DESEADO, y2-y1 + PATCH_DESEADO, 
+                             fill=False, color='red', linewidth=3, label='Detección FCOS')
+        ax[0].add_patch(rect)
+        ax[0].legend()
+    ax[0].set_title("Detección de Objeto (BBox)")
+    ax[0].axis('off')
 
-    # Mostrar Heatmap superpuesto
-    plt.subplot(1, 2, 2)
-    plt.imshow(img_cropped)
-    plt.imshow(heatmap, cmap='jet', alpha=0.6, extent=(0, img_cropped.size[0], img_cropped.size[1], 0), interpolation='bilinear')
-    plt.title("Localización del Sketch (Heatmap)")
-    plt.colorbar(label="Similitud Coseno")
-    plt.axis('off')
+    # Heatmap
+    ax[1].imshow(img_cropped)
+    ax[1].imshow(heatmap, cmap='jet', alpha=0.6, 
+               extent=(0, img_cropped.size[0], img_cropped.size[1], 0), 
+               interpolation='nearest')
+    ax[1].set_title(f"Heatmap (Patch: {PATCH_DESEADO})")
+    ax[1].axis('off')
 
     plt.tight_layout()
-    plt.savefig("resultado_lora_sin_resize.png", dpi=300)
-    print(f"Proceso completado con éxito. Revisa 'resultado_lora_sin_resize.png'")
+    plt.savefig("deteccion_fcos.png", dpi=300)
+    plt.show()
 
 if __name__ == "__main__":
     main()
