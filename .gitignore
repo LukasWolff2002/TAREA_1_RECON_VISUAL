@@ -16,7 +16,6 @@ DocExplore_images/
 DocExplore_queries_web/
 S3BIR-DINO/
 S3BIR_DINO/*
-¡Doc/
 .bash_history
 .bash_logout
 .bashrc
@@ -29,7 +28,7 @@ INFORME/*
 !INFORME/referencias.bib
 !INFORME/Imagenes
 idoc_pretrained.pth
-fcos_training/checkpoints
+fcos_training/checkpoints/*
 idoc_pretrained.pth
 *.pth
 ENTREGA_1/*
