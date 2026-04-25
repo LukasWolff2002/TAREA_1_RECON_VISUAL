@@ -31,3 +31,4 @@ INFORME/*
 idoc_pretrained.pth
 fcos_training/checkpoints
 idoc_pretrained.pth
+*.pth
