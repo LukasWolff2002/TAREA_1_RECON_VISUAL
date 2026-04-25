@@ -29,3 +29,4 @@ INFORME/*
 !INFORME/referencias.bib
 !INFORME/Imagenes
 idoc_pretrained.pth
+fcos_training/checkpoints
