@@ -30,4 +30,4 @@ INFORME/*
 !INFORME/Imagenes
 idoc_pretrained.pth
 fcos_training/checkpoints
-idoc_pretrained2.pth
+idoc_pretrained.pth
