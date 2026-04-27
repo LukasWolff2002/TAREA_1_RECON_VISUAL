@@ -1,5 +1,6 @@
 """
 Multi-Scale FCOS con Feature Pyramid Network para Query-Conditioned Detection
+VERSIÓN CORREGIDA: Con normalización de features para query modulation
 """
 import torch
 import torch.nn as nn
@@ -159,17 +160,17 @@ class FCOSHead(nn.Module):
 class QueryConditionedFCOS(nn.Module):
     """
     Multi-Scale FCOS condicionado por query sketch
+    VERSIÓN CORREGIDA con normalización de features
     """
     def __init__(self, config):
         super().__init__()
         self.config = config
         
         # Backbone (ViT pre-entrenado)
-        # Backbone (ViT pre-entrenado)        # Buscar el modelo dentro del diccionario de vision_transformer
         self.backbone = vision_transformer.__dict__[config.BACKBONE_TYPE](
             patch_size=config.PATCH_SIZE,
             num_classes=0,
-            return_all_tokens=True  # 👈 ¡La línea que agregamos va aquí!
+            return_all_tokens=True
         )
         
         # Load pretrained weights
@@ -210,11 +211,12 @@ class QueryConditionedFCOS(nn.Module):
             num_classes=1  # Binary: object vs background
         )
         
-        # Query modulation (sketch features → modulation weights)
+        # 🆕 CORREGIDO: Query modulation con tanh para limitar rango
         self.query_modulation = nn.Sequential(
             nn.Linear(config.FEATURE_DIM, config.FPN_OUT_CHANNELS),
             nn.ReLU(inplace=True),
-            nn.Linear(config.FPN_OUT_CHANNELS, config.FPN_OUT_CHANNELS)
+            nn.Linear(config.FPN_OUT_CHANNELS, config.FPN_OUT_CHANNELS),
+            nn.Tanh()  # ← Limita el rango a [-1, 1]
         )
     
     def extract_multiscale_features(self, x):
@@ -225,7 +227,6 @@ class QueryConditionedFCOS(nn.Module):
         B, C, H, W = x.shape
         
         # Get ViT patch embeddings
-        # Si backbone está congelado, usar torch.no_grad()
         if self.config.FREEZE_BACKBONE:
             with torch.no_grad():
                 features = self.backbone(x)
@@ -236,10 +237,7 @@ class QueryConditionedFCOS(nn.Module):
             if isinstance(features, tuple):
                 features = features[0]
         
-        # Reshape a spatial (asumiendo output es BxNxD)
-        # Para ViT: N = (H/patch_size) * (W/patch_size)
-        # 👈 NUEVO: Descartamos el token global (CLS) en la posición 0
-        # Nos quedamos solo con los tokens de los parches espaciales
+        # Descartar token global (CLS)
         if features.dim() == 3:
             features = features[:, 1:, :] 
             
@@ -247,14 +245,13 @@ class QueryConditionedFCOS(nn.Module):
         h_patches = H // patch_size
         w_patches = W // patch_size
         
-        # Ahora sí, la cantidad de tokens coincide exactamente con h_patches * w_patches
         spatial_features = features.view(B, h_patches, w_patches, -1)
         spatial_features = spatial_features.permute(0, 3, 1, 2)  # (B, D, H, W)
         
         # Create pyramid usando pooling
-        c3 = self.feature_adapter['C3'](spatial_features)  # stride 8 (original)
-        c4 = self.feature_adapter['C4'](F.avg_pool2d(spatial_features, 2))  # stride 16
-        c5 = self.feature_adapter['C5'](F.avg_pool2d(spatial_features, 4))  # stride 32
+        c3 = self.feature_adapter['C3'](spatial_features)
+        c4 = self.feature_adapter['C4'](F.avg_pool2d(spatial_features, 2))
+        c5 = self.feature_adapter['C5'](F.avg_pool2d(spatial_features, 4))
         
         return {'C3': c3, 'C4': c4, 'C5': c5}
     
@@ -268,7 +265,7 @@ class QueryConditionedFCOS(nn.Module):
         """
         B = images.shape[0]
         
-        # Extract query features (también congelado si aplica)
+        # Extract query features
         if self.config.FREEZE_BACKBONE:
             with torch.no_grad():
                 sketch_features = self.backbone(sketches)
@@ -279,11 +276,14 @@ class QueryConditionedFCOS(nn.Module):
             if isinstance(sketch_features, tuple):
                 sketch_features = sketch_features[0]
         
-        # Global pooling si es necesario
+        # Global pooling
         if sketch_features.dim() > 2:
             sketch_features = sketch_features.mean(dim=1)  # (B, D)
         
-        # Query modulation weights
+        # 🆕 CRÍTICO: Normalizar features del sketch (como en tu código que funcionaba)
+        sketch_features = F.normalize(sketch_features, p=2, dim=-1)
+        
+        # Query modulation weights (ya limitado por tanh)
         modulation = self.query_modulation(sketch_features)  # (B, FPN_OUT_CHANNELS)
         
         # Extract multi-scale image features
@@ -295,10 +295,18 @@ class QueryConditionedFCOS(nn.Module):
         # Apply query modulation y FCOS head
         predictions = []
         for level_idx, feat in enumerate(pyramid_features):
-            # Modulate with query
-            # Broadcasting: (B, C, 1, 1) * (B, C, H, W)
+            # 🆕 CRÍTICO: Normalizar features de imagen antes de modular
+            feat_norm = F.normalize(feat, p=2, dim=1)
+            
+            # Modulation weights (B, C) -> (B, C, 1, 1)
             modulation_weights = modulation.unsqueeze(-1).unsqueeze(-1)
-            feat_modulated = feat * (1 + modulation_weights)
+            
+            # 🆕 CORREGIDO: Modulación más suave (aditiva + escala pequeña)
+            # En lugar de multiplicar directamente, sumamos con factor pequeño
+            feat_modulated = feat_norm + modulation_weights * 0.2
+            
+            # Re-escalar para que tenga magnitud similar a feat original
+            feat_modulated = feat_modulated * feat.norm(dim=1, keepdim=True).mean()
             
             # FCOS predictions
             cls_logits, bbox_pred, centerness = self.fcos_head(feat_modulated, level_idx)

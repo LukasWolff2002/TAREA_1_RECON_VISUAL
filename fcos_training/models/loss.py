@@ -165,12 +165,30 @@ class FCOSLoss(nn.Module):
                     locations = torch.stack([shift_x, shift_y], dim=-1)  # (H, W, 2)
                     
                     # Para cada box, encontrar píxeles dentro
+                    # En loss.py, reemplaza líneas 171-179:
+
                     for box in level_boxes:
                         x1, y1, x2, y2 = box
                         
-                        # Center sampling radius
+                        # Calcular tamaño de la box
+                        box_w = x2 - x1
+                        box_h = y2 - y1
+                        box_size = torch.sqrt(box_w * box_h)
+                        
+                        # Radius proporcional al tamaño de la box
+                        # Para boxes pequeñas, usar más del 80% de la box
+                        # Para boxes grandes, usar menos (center sampling más estricto)
+                        if box_size < 64:
+                            radius_ratio = 0.8  # 80% de la box
+                        elif box_size < 128:
+                            radius_ratio = 0.6  # 60% de la box
+                        else:
+                            radius_ratio = 0.4  # 40% de la box (más estricto)
+                        
                         cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
-                        radius = self.config.CENTER_SAMPLING_RADIUS * stride
+                        radius = box_size * radius_ratio  # ← Basado en el tamaño real
+                        
+                        # ... resto del código igual ...
                         
                         # Píxeles dentro del radius del centro
                         dist_to_center = torch.sqrt(

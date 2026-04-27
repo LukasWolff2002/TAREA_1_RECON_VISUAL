@@ -1,5 +1,6 @@
 """
 Configuración de entrenamiento para Multi-Scale FCOS con Query Conditioning
+VERSIÓN CORREGIDA
 """
 import torch
 import os
@@ -21,20 +22,20 @@ class Config:
     FEATURE_DIM = 768  # ViT-Base output dimension
     
     # 🔒 IMPORTANTE: Congelar backbone
-    FREEZE_BACKBONE = True  # NUEVO: Congela el encoder ViT
+    FREEZE_BACKBONE = True
     
     # FPN Configuration
     FPN_OUT_CHANNELS = 256
     FPN_LEVELS = 4  # P3, P4, P5, P6
-    FPN_STRIDES = [8, 16, 32, 64]
+    FPN_STRIDES = [16, 32, 64, 128] 
     
     # Object size ranges for each FPN level (in pixels)
     FPN_SIZE_RANGES = [
-        (0, 64),        # P3: small objects
-        (64, 128),      # P4: medium-small objects
-        (128, 256),     # P5: medium-large objects
-        (256, 999999)   # P6: large objects
-    ]
+    (0, 128),       # P3: stride 16
+    (128, 256),     # P4: stride 32  
+    (256, 512),     # P5: stride 64
+    (512, 999999)   # P6: stride 128
+]
     
     # ======================== TRAINING ========================
     # Image sizes
@@ -62,18 +63,19 @@ class Config:
     LOSS_WEIGHT_CTR = 1.0
     
     # FCOS specific
-    CENTER_SAMPLING_RADIUS = 1.5
+    CENTER_SAMPLING_RADIUS = 12.0
     IOU_LOSS_TYPE = "giou"  # "iou", "giou", "diou", "ciou"
-    FOCAL_LOSS_ALPHA = 0.25
-    FOCAL_LOSS_GAMMA = 2.0
+    FOCAL_LOSS_ALPHA = 0.5
+    FOCAL_LOSS_GAMMA = 1.5
     
     # ======================== DATA ========================
     TRAIN_SPLIT = 0.7
     VAL_SPLIT = 0.15
     TEST_SPLIT = 0.15
     
-    # Score threshold for filtering noisy boxes
-    BOX_SCORE_THRESHOLD = 0.6
+    # 🆕 CRÍTICO: Score threshold para filtrar boxes en DATASET
+    # Cambiado de 0.6 a 0.0 para incluir TODAS las boxes durante entrenamiento
+    BOX_SCORE_THRESHOLD = 0.0  # ← ESTO ES CLAVE!
     
     # Data augmentation
     USE_AUGMENTATION = True
@@ -87,9 +89,9 @@ class Config:
     EVAL_INTERVAL = 2  # Evaluate every N epochs
     SAVE_INTERVAL = 5  # Save checkpoint every N epochs
     
-    # NMS
-    NMS_THRESHOLD = 0.6
-    SCORE_THRESHOLD = 0.05
+    # 🆕 CORREGIDO: NMS y Score threshold para INFERENCIA (no para training)
+    NMS_THRESHOLD = 0.5        # Un poco más permisivo
+    SCORE_THRESHOLD = 0.05     # Bajo para capturar más detecciones
     MAX_DETECTIONS_PER_IMAGE = 100
     
     # mAP calculation
