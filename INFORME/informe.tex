@@ -1,0 +1,207 @@
+\documentclass[11pt]{article} 
+
+% Paquetes de idioma y codificación
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+
+% Paquete de geometría (una sola vez)
+\usepackage[
+  paperwidth=21.6cm,
+  paperheight=27.9cm,
+  left=3cm,
+  right=2cm,
+  top=3cm,
+  bottom=3cm
+]{geometry}
+
+% Paquetes de tipografía
+\usepackage{mathptmx}
+\usepackage{microtype}
+
+% Paquetes para manejo de colores y gráficos
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{subcaption}
+
+% Definición de colores (ANTES de lstset que los usa)
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\definecolor{codegreen}{rgb}{0.25, 0.49, 0.48}
+\definecolor{codegray}{rgb}{0.5, 0.5, 0.5}
+\definecolor{codepurple}{rgb}{0.58, 0, 0.82}
+\definecolor{backcolour}{rgb}{0.95, 0.95, 0.92}
+
+% Configuración de enlaces
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks = true,
+    linkcolor  = darkblue,
+    citecolor  = black,
+    filecolor  = blue,
+    urlcolor   = blue
+}
+
+% Paquetes para tablas y figuras
+\usepackage{booktabs}
+\usepackage{float}
+
+% Personalización de códigos fuente
+\usepackage{listings}
+\lstset{
+    literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {ü}{{\"u}}1 {Ü}{{\"U}}1,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{codepurple},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{red},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    language=TeX,
+    morecomment=[l]\#,
+    frame=single,
+    rulecolor=\color{black}
+}
+
+% Matemáticas y párrafos
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{ragged2e}
+
+% Configuración de secciones (una sola definición de \part)
+\usepackage{titlesec}
+\titleformat{\part}[display]
+  {\normalfont\huge\bfseries}{}{0pt}{}
+  [\thispagestyle{fancy}]
+
+% Encabezados y pies de página
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyhead[R]{\thepage}
+
+% Bibliografía
+\usepackage{natbib}
+\bibliographystyle{unsrtnat}
+
+\begin{document}
+
+    \begin{center}
+        
+    \vspace*{1cm}
+
+
+    \textbf{\Large Evaluación del codificador iDoc-FCOS en la detección de símbolos mediante bocetos en manuscritos históricos}
+  
+    \vspace{1cm}
+    
+    \textbf{Bernardo Caprile \& Lukas Wolff}\\
+    Facultad de Ingeniería y Ciencias Aplicadas, Universidad de los Andes, Santiago de Chile\\
+    e-mail: \href{mailto:bcaprile@miuandes.cl}{bcaprile@miuandes.cl} y \href{mailto:lwolff@miuandes.cl}{lwolff@miuandes.cl}\\
+    GitHub: \href{https://github.com/LukasWolff2002/TAREA_1_RECON_VISUAL/tree/master}{Repositorio}
+    \vspace{1cm}
+    
+    \textbf{ABSTRACT}
+    \end{center}
+    \vspace{0.5cm}
+    
+    Este trabajo evalúa un sistema de detección de símbolos condicionado por bocetos (sketches) en manuscritos históricos medievales. Utilizando el dataset HORAE con 544 páginas anotadas, se implementa una arquitectura que combina un backbone Vision Transformer (ViT-B/16) pre-entrenado con iDoc mediante iBOT, congelado para preservar representaciones específicas del dominio, con un detector FCOS anchor-free que incorpora condicionamiento FiLM basado en queries visuales. El sistema aborda el desafío de la variabilidad extrema de escala (objetos de 5 a >400 píxeles) mediante una Feature Pyramid Network de cinco niveles (strides 4-64). Se reportan métricas de detección mAP@0.5 desglosadas por escala, demostrando la efectividad del enfoque de transferencia de conocimiento con backbone congelado para tareas de detección en documentos históricos con datasets limitados.
+
+
+    \vspace{0.5cm}
+
+\section{Introducción}
+
+La detección de elementos visuales en documentos históricos representa un desafío fundamental para la digitalización y análisis automatizado del patrimonio cultural. A diferencia de las imágenes naturales, los manuscritos medievales presentan características únicas: variabilidad extrema en escalas (desde marcas de decoración de pocos píxeles hasta ilustraciones que ocupan porciones significativas de la página), diversidad de formatos y estilos según el scriptorium de origen, y la presencia de elementos degradados por el paso del tiempo~\cite{clausner2018icfhr, coustaty2011historical}.
+
+Continuando con la evaluación del codificador iDoc basado en DINO~\cite{caron2021emerging}, esta investigación se centra en evaluar la capacidad del modelo para detectar sketches en documentos históricos mediante bounding boxes. El enfoque propuesto aprovecha las representaciones visuales pre-entrenadas del backbone iDoc, congelando sus parámetros para preservar el conocimiento específico del dominio de manuscritos históricos, mientras se entrena un head de detección tipo FCOS~\cite{tian2019fcos} especializado en la tarea.
+
+La detección condicionada por query donde el modelo debe localizar instancias de un símbolo específico proporcionado como sketch en tiempo de inferencia constituye un problema considerablemente más complejo que la detección de objetos tradicional con clases predefinidas~\cite{he2017mask}. Este paradigma es especialmente relevante para historiadores y paleógrafos que buscan localizar símbolos o motivos decorativos específicos en grandes corpus documentales sin necesidad de entrenar un modelo para cada símbolo de interés.
+
+El presente trabajo utiliza el dataset HORAE, compuesto por 544 páginas de manuscritos medievales con anotaciones de 22 clases de símbolos y elementos decorativos. Se evalúa el desempeño del sistema utilizando métricas estándar de detección de objetos como mAP (mean Average Precision)~\cite{everingham2010pascal} y se analiza el rendimiento por escala, considerando la distribución altamente desbalanceada de tamaños de objetos presente en el dataset.
+
+
+\section{Metodología}
+
+\subsection{Formulación del problema}
+
+La tarea se define formalmente como detección de objetos condicionada por query. Dada una imagen de manuscrito $I \in \mathbb{R}^{H \times W \times 3}$ y un sketch query $Q \in \mathbb{R}^{H_q \times W_q \times 3}$ que representa el símbolo objetivo, el modelo debe predecir un conjunto de detecciones $\mathcal{D} = \{(b_i, s_i)\}_{i=1}^{N}$, donde $b_i = (x_1, y_1, x_2, y_2)$ representa las coordenadas de la bounding box y $s_i \in [0,1]$ el score de confianza.
+
+Los documentos históricos presentan una gran variedad de elementos visuales con formatos diversos en tamaño y proporción~\cite{stutzmann2021icdar}. El dataset HORAE refleja esta variabilidad: el símbolo más frecuente (\textit{marqeur}) tiene una mediana de 27 píxeles, mientras que ilustraciones complejas superan los 400 píxeles, representando una variación de escala de más de 15x.
+
+
+\subsection{Arquitectura del modelo}
+
+El sistema está compuesto por cuatro módulos principales, como muestra la figura \ref{fig:arquitectura}:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{Images/arquitectura.png}
+    \caption{Arquitectura del sistema de detección condicionado por query. El backbone ViT-B/16 pre-entrenado con iDoc se mantiene congelado, extrayendo features que alimentan una Feature Pyramid Network (FPN) de cinco niveles. El sketch query se codifica mediante el mismo ViT, y el head FCOS con FiLM conditioning predice las detecciones.}
+    \label{fig:arquitectura}
+\end{figure}
+
+\paragraph{Backbone pre-entrenado y congelado.} 
+Se utiliza un Vision Transformer Base (ViT-B/16)~\cite{dosovitskiy2020image} pre-entrenado con iDoc mediante iBOT~\cite{zhou2021ibot}, combinando objetivos DINO~\cite{caron2021emerging} y Masked Image Modeling sobre manuscritos históricos. Los 85.8M parámetros permanecen congelados, preservando el conocimiento del dominio.
+
+\paragraph{Feature Pyramid Network (FPN).}
+Se implementa una Simple Feature Pyramid~\cite{li2022exploring} extrayendo features de cuatro capas intermedias del ViT (capas 2, 5, 8 y 11), obteniendo cinco niveles piramidales (P2-P6) con strides de 4, 8, 16, 32 y 64 píxeles. Cada nivel se proyecta a 256 canales mediante convoluciones $1 \times 1$, seguidas de un top-down pathway para fusión multi-escala. El FPN contiene aproximadamente 3.2M parámetros entrenables.
+
+\paragraph{Query Encoder.}
+El sketch query pasa por el mismo ViT del backbone (compartiendo pesos), extrayendo el token CLS como vector $q \in \mathbb{R}^{768}$ que codifica el símbolo objetivo.
+
+\paragraph{FCOS Head con FiLM conditioning.}
+Se adopta FCOS~\cite{tian2019fcos}, un detector anchor-free que predice distancias a los bordes desde cada píxel. El condicionamiento por query se implementa mediante FiLM~\cite{perez2018film}:
+
+\begin{equation}
+F'_i = \gamma_i(q) \odot F_i + \beta_i(q)
+\end{equation}
+
+donde $\gamma_i, \beta_i : \mathbb{R}^{768} \rightarrow \mathbb{R}^{256}$ modulan las features según el query. El head predice tres mapas por nivel: clasificación, regresión (distancias $l, t, r, b$) y centerness.
+
+
+\subsection{Función de pérdida}
+
+El sistema minimiza:
+
+\begin{equation}
+\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{focal}} + \mathcal{L}_{\text{GIoU}} + \mathcal{L}_{\text{centerness}}
+\end{equation}
+
+Se utiliza Focal Loss~\cite{lin2017focal} ($\alpha=0.25$, $\gamma=2.0$) para manejar el desbalance clase-fondo, GIoU Loss~\cite{rezatofighi2019generalized} para regresión de boxes con gradientes robustos, y Binary Cross-Entropy para centerness.
+
+
+\subsection{Configuración del entrenamiento}
+
+Las imágenes se redimensionan manteniendo aspect ratio con lado corto en 800px (tope 1333px) para preservar objetos pequeños. Se aplican augmentaciones: multi-scale resize $\{640, 720, 800, 900, 1024\}$px, flip horizontal (p=0.5), color jitter moderado, y copy-paste para balancear clases raras.
+
+El dataset se divide por página: 336 páginas (433 muestras) entrenamiento, 42 (55) validación, 42 (56) test. Se utiliza AdamW~\cite{loshchilov2017decoupled} con $\eta = 1 \times 10^{-4}$, warmup lineal de 5 épocas y cosine decay hasta época 50. La métrica principal es mAP@0.5~\cite{everingham2010pascal}, desglosada por escalas (small/medium/large).
+
+
+\section{Resultados}
+
+
+\section{Conclusiones}
+
+
+\newpage
+\bibliography{references}  % Asegúrate de que el archivo se llame references.bib
+
+
+
+\end{document}
