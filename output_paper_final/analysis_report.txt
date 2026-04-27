@@ -1,0 +1,25 @@
+REPORTE TÉCNICO DE BOUNDING BOXES
+========================================
+
+Total de objetos: 1349
+Clases únicas: 22
+
+ESTADÍSTICAS DE ÁREA (px²):
+count    1.349000e+03
+mean     2.188352e+04
+std      1.779756e+05
+min      2.340000e+02
+25%      9.030000e+02
+50%      1.400000e+03
+75%      3.717000e+03
+max      3.119905e+06
+
+CATEGORIZACIÓN COCO:
+Pequeños (<32²): 414 (30.69%)
+Medianos: 737 (54.63%)
+Grandes (>=96²): 198 (14.68%)
+
+ASPECT RATIO (W/H):
+Mediana: 1.73
+Horizontal (AR > 1.2): 72.9%
+Vertical (AR < 0.8): 10.6%
