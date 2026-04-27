@@ -1,0 +1,228 @@
+{
+  "mAP": 0.4901,
+  "iou_threshold": 0.5,
+  "score_threshold": 0.05,
+  "split": "test",
+  "per_class": {
+    "BP": {
+      "ap": 1.0,
+      "n_gt": 1,
+      "n_pred": 12,
+      "n_tp": 1,
+      "n_fp": 11,
+      "n_fn": 0,
+      "recall": 1.0,
+      "precision": 0.0833
+    },
+    "croix": {
+      "ap": 0.0769,
+      "n_gt": 1,
+      "n_pred": 90,
+      "n_tp": 1,
+      "n_fp": 89,
+      "n_fn": 0,
+      "recall": 1.0,
+      "precision": 0.0111
+    },
+    "double_sep": {
+      "ap": 1.0,
+      "n_gt": 1,
+      "n_pred": 48,
+      "n_tp": 1,
+      "n_fp": 47,
+      "n_fn": 0,
+      "recall": 1.0,
+      "precision": 0.0208
+    },
+    "encadrement": {
+      "ap": 0.4727,
+      "n_gt": 6,
+      "n_pred": 64,
+      "n_tp": 6,
+      "n_fp": 58,
+      "n_fn": 0,
+      "recall": 1.0,
+      "precision": 0.0937
+    },
+    "grand_A": {
+      "ap": 1.0,
+      "n_gt": 2,
+      "n_pred": 20,
+      "n_tp": 2,
+      "n_fp": 18,
+      "n_fn": 0,
+      "recall": 1.0,
+      "precision": 0.1
+    },
+    "losange": {
+      "ap": 1.0,
+      "n_gt": 7,
+      "n_pred": 23,
+      "n_tp": 7,
+      "n_fp": 16,
+      "n_fn": 0,
+      "recall": 1.0,
+      "precision": 0.3043
+    },
+    "marqeur": {
+      "ap": 0.8309,
+      "n_gt": 30,
+      "n_pred": 140,
+      "n_tp": 29,
+      "n_fp": 111,
+      "n_fn": 1,
+      "recall": 0.9667,
+      "precision": 0.2071
+    },
+    "obj_1": {
+      "ap": 0.0267,
+      "n_gt": 3,
+      "n_pred": 142,
+      "n_tp": 2,
+      "n_fp": 140,
+      "n_fn": 1,
+      "recall": 0.6667,
+      "precision": 0.0141
+    },
+    "obj_2": {
+      "ap": 0.0,
+      "n_gt": 0,
+      "n_pred": 3,
+      "n_tp": 0,
+      "n_fp": 3,
+      "n_fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "obj_31": {
+      "ap": 0.1818,
+      "n_gt": 5,
+      "n_pred": 21,
+      "n_tp": 3,
+      "n_fp": 18,
+      "n_fn": 2,
+      "recall": 0.6,
+      "precision": 0.1429
+    },
+    "obj_34": {
+      "ap": 0.4349,
+      "n_gt": 7,
+      "n_pred": 185,
+      "n_tp": 6,
+      "n_fp": 179,
+      "n_fn": 1,
+      "recall": 0.8571,
+      "precision": 0.0324
+    },
+    "obj_37": {
+      "ap": 0.2212,
+      "n_gt": 6,
+      "n_pred": 135,
+      "n_tp": 4,
+      "n_fp": 131,
+      "n_fn": 2,
+      "recall": 0.6667,
+      "precision": 0.0296
+    },
+    "obj_39": {
+      "ap": 0.15,
+      "n_gt": 5,
+      "n_pred": 80,
+      "n_tp": 3,
+      "n_fp": 77,
+      "n_fn": 2,
+      "recall": 0.6,
+      "precision": 0.0375
+    },
+    "obj_40": {
+      "ap": 0.4545,
+      "n_gt": 8,
+      "n_pred": 427,
+      "n_tp": 7,
+      "n_fp": 420,
+      "n_fn": 1,
+      "recall": 0.875,
+      "precision": 0.0164
+    },
+    "obj_42": {
+      "ap": 0.0,
+      "n_gt": 0,
+      "n_pred": 17,
+      "n_tp": 0,
+      "n_fp": 17,
+      "n_fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "obj_61": {
+      "ap": 0.0417,
+      "n_gt": 1,
+      "n_pred": 26,
+      "n_tp": 1,
+      "n_fp": 25,
+      "n_fn": 0,
+      "recall": 1.0,
+      "precision": 0.0385
+    },
+    "pdp": {
+      "ap": 0.0,
+      "n_gt": 0,
+      "n_pred": 57,
+      "n_tp": 0,
+      "n_fp": 57,
+      "n_fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "petit_A": {
+      "ap": 0.5435,
+      "n_gt": 8,
+      "n_pred": 60,
+      "n_tp": 8,
+      "n_fp": 52,
+      "n_fn": 0,
+      "recall": 1.0,
+      "precision": 0.1333
+    },
+    "S": {
+      "ap": 0.8499,
+      "n_gt": 9,
+      "n_pred": 111,
+      "n_tp": 9,
+      "n_fp": 102,
+      "n_fn": 0,
+      "recall": 1.0,
+      "precision": 0.0811
+    },
+    "status": {
+      "ap": 0.028,
+      "n_gt": 3,
+      "n_pred": 169,
+      "n_tp": 1,
+      "n_fp": 168,
+      "n_fn": 2,
+      "recall": 0.3333,
+      "precision": 0.0059
+    },
+    "T": {
+      "ap": 1.0,
+      "n_gt": 2,
+      "n_pred": 39,
+      "n_tp": 2,
+      "n_fp": 37,
+      "n_fn": 0,
+      "recall": 1.0,
+      "precision": 0.0513
+    },
+    "triple_sep": {
+      "ap": 0.0,
+      "n_gt": 1,
+      "n_pred": 5,
+      "n_tp": 0,
+      "n_fp": 5,
+      "n_fn": 1,
+      "recall": 0.0,
+      "precision": 0.0
+    }
+  }
+}
